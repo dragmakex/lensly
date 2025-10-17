@@ -1,1 +1,1 @@
-# ai-slop-shop
+# AI Slop Shop
