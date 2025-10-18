@@ -5,6 +5,8 @@
 - [System Architecture](#system-architecture)
 - [Requirements](#requirements)
 - [Tech Stack](#tech-stack)
+- [Database](#database)
+  - [Entity Relations Diagram](#entity-relations-diagram)
 
 ## System Architecture
 
@@ -48,3 +50,22 @@ SDK --"posts data"-->Database
 | SDK           | Typescript;                                              |
 | MiniApp       | Typescript;                                              |
 | Orchestration | Docker;                                                  |
+
+## Database
+
+### Entity Relations Diagram
+
+The Entity Relations Diagram below is normalized to 3NF.
+
+```mermaid
+    erDiagram
+    %% Entities
+    Sources {
+        id uuid PK
+        mini_app_id text
+        farcaster_id text
+        source_type enum
+        recorded_at timestamp
+    }
+    %% Relations
+```

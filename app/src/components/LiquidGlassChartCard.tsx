@@ -8,16 +8,12 @@ import {
   Legend,
   Tooltip
 } from 'recharts';
-
-interface SourceData {
-  source: string;
-  count: number;
-  percentage: number;
-}
+import type { LegendPayload } from 'recharts';
+import type { PieDatum } from '@/types/charts';
 
 interface LiquidGlassChartCardProps {
   title: string;
-  data: SourceData[];
+  data: PieDatum[];
   icon: React.ReactNode;
 }
 
@@ -38,7 +34,12 @@ export default function LiquidGlassChartCard({
   data,
   icon
 }: LiquidGlassChartCardProps) {
-  const CustomTooltip = ({ active, payload }: any) => {
+  type TooltipContentProps = {
+    active?: boolean;
+    payload?: Array<{ value: number; name: string; payload: PieDatum }>;
+  };
+
+  const CustomTooltip = ({ active, payload }: TooltipContentProps) => {
     if (active && payload && payload[0]) {
       return (
         <div className="liquid-glass rounded-lg px-3 py-2 text-white text-xs">
@@ -50,13 +51,40 @@ export default function LiquidGlassChartCard({
     return null;
   };
 
+  type LabelProps = {
+    cx?: number | string;
+    cy?: number | string;
+    midAngle?: number;
+    innerRadius?: number;
+    outerRadius?: number;
+    percent?: number;
+  };
+
   const renderCustomizedLabel = ({
-    cx, cy, midAngle, innerRadius, outerRadius, percentage
-  }: any) => {
+    cx,
+    cy,
+    midAngle,
+    innerRadius,
+    outerRadius,
+    percent
+  }: LabelProps) => {
     const RADIAN = Math.PI / 180;
+    if (
+      cx === undefined ||
+      cy === undefined ||
+      midAngle === undefined ||
+      innerRadius === undefined ||
+      outerRadius === undefined
+    ) {
+      return null;
+    }
+
+    const numericCx = typeof cx === 'number' ? cx : Number(cx);
+    const numericCy = typeof cy === 'number' ? cy : Number(cy);
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+    const x = numericCx + radius * Math.cos(-midAngle * RADIAN);
+    const y = numericCy + radius * Math.sin(-midAngle * RADIAN);
+    const percentage = Math.round((percent ?? 0) * 100);
 
     if (percentage < 5) return null; // Don't show label for small slices
 
@@ -65,7 +93,7 @@ export default function LiquidGlassChartCard({
         x={x}
         y={y}
         fill="white"
-        textAnchor={x > cx ? 'start' : 'end'}
+  textAnchor={x > numericCx ? 'start' : 'end'}
         dominantBaseline="central"
         className="text-xs font-medium"
       >
@@ -113,9 +141,9 @@ export default function LiquidGlassChartCard({
               <Legend
                 verticalAlign="bottom"
                 height={36}
-                formatter={(value, entry: any) => (
+                formatter={(value: string, entry?: LegendPayload) => (
                   <span className="text-white/80 text-xs">
-                    {value} ({entry.payload.percentage}%)
+                    {value} ({(entry?.payload as PieDatum | undefined)?.percentage ?? 0}%)
                   </span>
                 )}
               />

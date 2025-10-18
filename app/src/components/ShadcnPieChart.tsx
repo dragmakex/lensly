@@ -1,17 +1,13 @@
-"use client"
+"use client";
 
-import { Pie, PieChart, ResponsiveContainer, Cell, Legend } from "recharts"
-
-interface ChartData {
-  source: string;
-  count: number;
-  percentage: number;
-}
+import { Pie, PieChart, ResponsiveContainer, Cell, Legend, Tooltip } from "recharts";
+import type { LegendPayload } from "recharts";
+import type { PieDatum } from "@/types/charts";
 
 interface ShadcnPieChartProps {
   title: string;
   description: string;
-  data: ChartData[];
+  data: PieDatum[] | undefined;
 }
 
 export default function ShadcnPieChart({
@@ -28,7 +24,12 @@ export default function ShadcnPieChart({
     '#6D28D9', // Purple-600
   ];
 
-  const CustomTooltip = ({ active, payload }: any) => {
+  type TooltipContentProps = {
+    active?: boolean;
+    payload?: Array<{ value: number; name: string; payload: PieDatum }>;
+  };
+
+  const CustomTooltip = ({ active, payload }: TooltipContentProps) => {
     if (active && payload && payload[0]) {
       return (
         <div className="liquid-glass rounded-lg px-3 py-2 text-white text-xs">
@@ -40,31 +41,73 @@ export default function ShadcnPieChart({
     return null;
   };
 
-  const renderCustomizedLabel = ({
-    cx, cy, midAngle, innerRadius, outerRadius, percentage
-  }: any) => {
-    const RADIAN = Math.PI / 180;
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+  type LabelProps = {
+    cx?: number | string;
+    cy?: number | string;
+    midAngle?: number;
+    innerRadius?: number | string;
+    outerRadius?: number | string;
+    percent?: number;
+  };
 
-    if (percentage < 5) return null;
+  const renderCustomizedLabel = ({
+    cx,
+    cy,
+    midAngle,
+    innerRadius,
+    outerRadius,
+    percent
+  }: LabelProps) => {
+    const RADIAN = Math.PI / 180;
+    if (
+      cx === undefined ||
+      cy === undefined ||
+      midAngle === undefined ||
+      innerRadius === undefined ||
+      outerRadius === undefined
+    ) {
+      return null;
+    }
+
+    const numericCx = typeof cx === 'number' ? cx : parseFloat(cx);
+    const numericCy = typeof cy === 'number' ? cy : parseFloat(cy);
+    const numericInnerRadius = typeof innerRadius === 'number' ? innerRadius : parseFloat(innerRadius);
+    const numericOuterRadius = typeof outerRadius === 'number' ? outerRadius : parseFloat(outerRadius);
+
+    if (
+      Number.isNaN(numericCx) ||
+      Number.isNaN(numericCy) ||
+      Number.isNaN(numericInnerRadius) ||
+      Number.isNaN(numericOuterRadius)
+    ) {
+      return null;
+    }
+
+    const radius = numericInnerRadius + (numericOuterRadius - numericInnerRadius) * 0.5;
+
+    const x = numericCx + radius * Math.cos(-midAngle * RADIAN);
+    const y = numericCy + radius * Math.sin(-midAngle * RADIAN);
+
+    const displayPercent = Math.round((percent ?? 0) * 100);
+
+    if (displayPercent < 5) return null;
 
     return (
       <text
-        x={x}
-        y={y}
-        fill="white"
-        textAnchor={x > cx ? 'start' : 'end'}
+    x={x}
+    y={y}
+    fill="white"
+    textAnchor={x > numericCx ? 'start' : 'end'}
         dominantBaseline="central"
         className="text-xs font-medium"
       >
-        {`${percentage}%`}
+        {`${displayPercent}%`}
       </text>
     );
   };
 
-  const totalEntries = data.reduce((sum, item) => sum + item.count, 0);
+  const chartData = data ?? [];
+  const totalEntries = chartData.reduce((sum, item) => sum + item.count, 0);
 
   return (
     <div className="liquid-glass rounded-2xl p-4 sm:p-6 text-white relative overflow-hidden h-full flex flex-col">
@@ -85,27 +128,28 @@ export default function ShadcnPieChart({
 
         {/* Chart */}
         <div className="flex-1 w-full flex items-center justify-center">
-          {data && data.length > 0 ? (
+          {chartData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={data}
+                  data={chartData}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
+                  label={renderCustomizedLabel}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="count"
                   nameKey="source"
                 >
-                  {data.map((entry, index) => (
+                  {chartData.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
                       fill={purpleColors[index % purpleColors.length]}
                     />
                   ))}
                 </Pie>
-                <CustomTooltip />
+                <Tooltip content={<CustomTooltip />} />
                 <Legend
                   verticalAlign="bottom"
                   height={36}
@@ -113,8 +157,10 @@ export default function ShadcnPieChart({
                     fontSize: '12px',
                     color: 'rgba(255,255,255,0.8)'
                   }}
-                  formatter={(value) => (
-                    <span>{value} ({data.find(d => d.source === value)?.percentage}%)</span>
+                  formatter={(value: string, entry?: LegendPayload) => (
+                    <span>
+                      {value} ({(entry?.payload as PieDatum | undefined)?.percentage ?? 0}%)
+                    </span>
                   )}
                 />
               </PieChart>
@@ -130,7 +176,7 @@ export default function ShadcnPieChart({
         {/* Footer - Keeping your subline */}
         <div className="mt-2 pt-2 border-t border-white/20 text-center">
           <p className="text-xs opacity-70">
-            {data.length} source types • {totalEntries.toLocaleString()} total entries
+            {chartData.length} source types • {totalEntries.toLocaleString()} total entries
           </p>
         </div>
       </div>

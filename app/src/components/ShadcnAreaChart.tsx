@@ -1,17 +1,13 @@
 "use client"
 
-import { TrendingUp } from "lucide-react"
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from "recharts"
-
-interface ChartData {
-  date: string;
-  [key: string]: string | number;
-}
+import { TrendingUp } from "lucide-react";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import type { AreaDataPoint } from "@/types/charts";
 
 interface ShadcnAreaChartProps {
   title: string;
   description: string;
-  data: ChartData[];
+  data: AreaDataPoint[] | undefined;
   sources: string[];
 }
 
@@ -29,22 +25,6 @@ export default function ShadcnAreaChart({
     '#DDD6FE', // Purple-200
     '#6D28D9', // Purple-600
   ];
-
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="liquid-glass rounded-lg px-3 py-2 text-white text-xs">
-          <p className="font-medium mb-1">{label}</p>
-          {payload.map((entry: any, index: number) => (
-            <p key={index} style={{ color: entry.color }}>
-              {entry.name}: {entry.value}
-            </p>
-          ))}
-        </div>
-      );
-    }
-    return null;
-  };
 
   return (
     <div className="liquid-glass rounded-2xl p-4 sm:p-6 text-white relative overflow-hidden h-full flex flex-col">

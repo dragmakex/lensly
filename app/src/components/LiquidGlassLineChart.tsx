@@ -2,16 +2,12 @@
 
 import { TrendingUp } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-
-interface TimeSeriesData {
-  date: string;
-  [key: string]: string | number;
-}
+import type { AreaDataPoint } from "@/types/charts";
 
 interface LiquidGlassLineChartProps {
   title: string;
   description: string;
-  data: TimeSeriesData[];
+  data: AreaDataPoint[];
   sources: string[];
 }
 
@@ -27,12 +23,24 @@ const PURPLE_COLORS = [
   '#A855F7', // Purple-500
 ];
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+type LineTooltipEntry = {
+  color?: string;
+  name: string;
+  value: number;
+};
+
+type LineTooltipProps = {
+  active?: boolean;
+  payload?: LineTooltipEntry[];
+  label?: string;
+};
+
+const CustomTooltip = ({ active, payload, label }: LineTooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <div className="liquid-glass rounded-lg px-3 py-2 text-white text-xs">
         <p className="font-medium mb-1">{label}</p>
-        {payload.map((entry: any, index: number) => (
+        {payload.map((entry, index) => (
           <p key={index} style={{ color: entry.color }}>
             {entry.name}: {entry.value}%
           </p>
