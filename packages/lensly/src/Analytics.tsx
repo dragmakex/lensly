@@ -23,9 +23,38 @@ const pickFetch = (override?: typeof fetch) => {
   return undefined;
 };
 
+const resolveSourceType = (context?: MiniAppContext | null) => {
+  const reportedType = context?.location && typeof context.location === 'object'
+    ? (context.location as { type?: string }).type
+    : undefined;
+
+  if (reportedType) {
+    return {
+      sourceType: reportedType,
+      origin: 'location.type'
+    } as const;
+  }
+
+  const clientFid = context?.client?.clientFid;
+  const platformType = context?.client?.platformType;
+  const inferredMiniApp = context?.inMiniApp;
+
+  if (inferredMiniApp || clientFid != null || platformType) {
+    return {
+      sourceType: 'farcaster_client',
+      origin: inferredMiniApp ? 'isInMiniApp' : platformType ? 'client.platformType' : 'client.clientFid'
+    } as const;
+  }
+
+  return {
+    sourceType: FALLBACK_SOURCE_TYPE,
+    origin: 'fallback'
+  } as const;
+};
+
 const buildPayload = (miniappId: string, context?: MiniAppContext | null) => {
+  const { sourceType, origin } = resolveSourceType(context);
   const rawSourceType = context?.location?.type ?? null;
-  const sourceType = rawSourceType ? rawSourceType : FALLBACK_SOURCE_TYPE;
 
   const fidValue = context?.user?.fid;
   const farcasterId = fidValue != null ? String(fidValue) : '';
@@ -38,7 +67,9 @@ const buildPayload = (miniappId: string, context?: MiniAppContext | null) => {
     },
     meta: {
       rawSourceType,
-      usedFallback: sourceType === FALLBACK_SOURCE_TYPE && rawSourceType !== FALLBACK_SOURCE_TYPE
+      usedFallback: sourceType === FALLBACK_SOURCE_TYPE && rawSourceType !== FALLBACK_SOURCE_TYPE,
+      resolvedBy: origin,
+      inMiniApp: context?.inMiniApp ?? null
     }
   };
 };
@@ -65,7 +96,9 @@ export const Analytics = ({
       hasSent: hasSentRef.current,
       location: meta.rawSourceType,
       resolvedSource: payload.sourceType,
-  hasFid: Boolean(payload.farcasterId)
+      resolver: meta.resolvedBy,
+      inMiniApp: meta.inMiniApp,
+      hasFid: Boolean(payload.farcasterId)
     });
 
     if (hasSentRef.current) {

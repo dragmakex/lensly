@@ -4,13 +4,16 @@ import { ReactNode } from 'react';
 type MiniAppContext = {
     location?: {
         type?: string;
-    };
+        [key: string]: unknown;
+    } | null;
     user?: {
         fid?: string | number | null;
     };
     client?: {
         clientFid?: string | number | null;
+        platformType?: string | null;
     };
+    inMiniApp?: boolean;
 };
 interface AnalyticsProps {
     miniappId: string;
