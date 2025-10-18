@@ -5,9 +5,10 @@ export default function Logo({ className = "", size = 64 }) {
     <img
       src="/logo.svg"
       width={size}
-      height={size * 2.8}
+      height={size}
       className={className}
-      alt="Farcaster Analytics Logo"
+      alt="Lensly Logo"
+      style={{ aspectRatio: '365/1024' }}
     />
   );
 }

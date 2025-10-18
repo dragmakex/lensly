@@ -36,7 +36,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="relative min-h-screen w-screen bg-black overflow-hidden">
+    <div className="relative min-h-screen w-full bg-black overflow-hidden">
       <AnimatePresence mode="wait">
         {currentScreen === "landing" && (
           <motion.div
