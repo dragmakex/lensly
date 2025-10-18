@@ -6,9 +6,18 @@
     "packages/*"
   ],
   "devDependencies": {
+    "@commitlint/cli": "^19.5.0",
+    "@commitlint/config-conventional": "^19.5.0",
+    "commitizen": "^4.3.1",
+    "cz-conventional-changelog": "^3.3.0",
     "husky": "^9.1.7"
   },
   "scripts": {
     "prepare": "if [ -n \"$CI\" ] || [ \"$HUSKY_SKIP_INSTALL\" = \"1\" ]; then exit 0; fi; if command -v husky >/dev/null 2>&1; then husky install; fi"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
   }
 }
