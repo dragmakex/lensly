@@ -43,7 +43,7 @@ export default function LandingScreen() {
             transition={{ delay: 0.5, duration: 0.6 }}
             className="text-xl text-gray-300 mb-8"
           >
-            We connect brands with users
+            we connect brands with users
           </motion.p>
         </motion.div>
       </motion.div>

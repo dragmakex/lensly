@@ -43,7 +43,7 @@ export default function ShadcnAreaChart({
         {/* Chart */}
         <div className="flex-1 w-full flex items-center justify-center min-h-0">
           {data && data.length > 0 ? (
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" style={{ pointerEvents: 'none' }}>
               <AreaChart data={data}>
                 <defs>
                   {sources.map((source, index) => (

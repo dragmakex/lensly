@@ -109,8 +109,8 @@ export default function LiquidGlassSearchBar({
         transition={{ duration: 2, delay: 0.8 }}
         className="absolute inset-0 pointer-events-none"
       >
-        <div className="absolute top-20 left-20 w-64 h-64 bg-purple-500 rounded-full opacity-10 blur-3xl"></div>
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500 rounded-full opacity-10 blur-3xl"></div>
+        <div className="absolute top-20 left-20 w-48 h-48 bg-purple-500 rounded-full opacity-10 blur-3xl"></div>
+        <div className="absolute bottom-20 right-20 w-64 h-64 bg-blue-500 rounded-full opacity-10 blur-3xl"></div>
       </motion.div>
     </div>
   );
