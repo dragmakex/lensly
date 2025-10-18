@@ -28,7 +28,7 @@ export default function ChartsDisplay({ chartData, onBack }: ChartsDisplayProps)
       className="relative z-10 w-full max-w-4xl"
     >
       {/* Back Button */}
-      <div className="absolute top-0 left-4 z-20">
+      <div className="absolute top-4 left-4 z-20">
         <LiquidGlassButton
           onClick={onBack}
           icon={<ArrowLeft className="w-4 h-4" />}
@@ -44,7 +44,7 @@ export default function ChartsDisplay({ chartData, onBack }: ChartsDisplayProps)
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
-              className="w-[320px] h-[500px] flex-shrink-0"
+              className="w-[320px] h-[400px] flex-shrink-0"
             >
               <ShadcnPieChart
                 title="Source Distribution"
