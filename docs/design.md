@@ -48,6 +48,12 @@ Subtext: Type in your App-ID inside the searchbar and gain access to your app da
 - Logo nextcloud analitics on the top identical like the other slides
 - Slogan of the dev version needs to be implemented here: Connect your brand with your users!
 - display of the app ID: APP-ID: (Example App-ID), text in purple
+- display smaller of user numbers general - Display 1
+- display smaler of active users last: 24hours/1Week/1month/3months/year - Display 2
+- Increase or decrease of sctive user numbers registred: percentage change in 24hours/1Week/1month/3months/year
+- Piechart: Top 5 most active users in time, in amount of interactions with the app(posts etc.)
+- Pilechart: Source of users inside the app in sources against percentages of corresponding users in 1 percentage number with 2 digits
+
 
 [## User requirements for front end -- profile of an miniApp performance - User View
 Design development for after showcase 19.10.]
