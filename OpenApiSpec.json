@@ -234,7 +234,7 @@
                         "nullable": false,
                         "properties": {
                           "farcaster_id": {
-                            "nullable": false,
+                            "nullable": true,
                             "title": "String",
                             "type": "string"
                           },
