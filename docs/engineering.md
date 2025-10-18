@@ -40,10 +40,11 @@ SDK --"posts data"-->Database
 
 ## Tech Stack
 
-| Component   | Technology                                               |
-| ----------- | -------------------------------------------------------- |
-| Dashboard   | Typescript; Next.js; React.js; Tailwind; Vercel; ShadCN; |
-| Edge Server | Typescript; Next.js; Vercel;                             |
-| Database    | Postgres; Hasura;                                        |
-| SDK         | Typescript;                                              |
-| MiniApp     | Typescript;                                              |
+| Component     | Technology                                               |
+| ------------- | -------------------------------------------------------- |
+| Dashboard     | Typescript; Next.js; React.js; Tailwind; Vercel; ShadCN; |
+| Edge Server   | Hasura; Caddy;                                           |
+| Database      | Postgres;                                                |
+| SDK           | Typescript;                                              |
+| MiniApp       | Typescript;                                              |
+| Orchestration | Docker;                                                  |
