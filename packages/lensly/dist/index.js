@@ -181,10 +181,7 @@ var AnalyticsProvider = ({
         const result = await import_miniapp_sdk.default.context;
         if (!cancelled) {
           setContext(result);
-          log2("mini app context captured", {
-            location: result.location?.type,
-            hasFid: result.user?.fid != null
-          });
+          log2("mini app context captured", result);
           clearTimeout(timeout);
         }
       } catch (error) {
