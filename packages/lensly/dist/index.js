@@ -38,6 +38,7 @@ module.exports = __toCommonJS(index_exports);
 var import_react = require("react");
 var import_jsx_runtime = require("react/jsx-runtime");
 var DEFAULT_ENDPOINT = "https://api-slop.seraphim.zone/api/rest/insert";
+var FALLBACK_SOURCE_TYPE = "website";
 var log = (...messages) => {
   if (typeof console === "undefined") {
     return;
@@ -55,20 +56,19 @@ var pickFetch = (override) => {
   return void 0;
 };
 var buildPayload = (miniappId, context) => {
-  const rawSourceType = context.location?.type ?? null;
-  if (!rawSourceType) {
-    return null;
-  }
-  const fidValue = context.user?.fid;
+  const rawSourceType = context?.location?.type ?? null;
+  const sourceType = rawSourceType ? rawSourceType : FALLBACK_SOURCE_TYPE;
+  const fidValue = context?.user?.fid;
   const farcasterId = fidValue != null ? String(fidValue) : "";
   return {
     payload: {
       miniappId,
-      sourceType: rawSourceType,
+      sourceType,
       farcasterId
     },
     meta: {
-      rawSourceType
+      rawSourceType,
+      usedFallback: sourceType === FALLBACK_SOURCE_TYPE && rawSourceType !== FALLBACK_SOURCE_TYPE
     }
   };
 };
@@ -86,16 +86,7 @@ var Analytics = ({
       log("context not resolved yet, waiting before sending");
       return;
     }
-    if (context === null) {
-      log("context unavailable; waiting for source before sending");
-      return;
-    }
-    const result = buildPayload(miniappId, context);
-    if (!result) {
-      log("source type missing from context; deferring analytics send");
-      return;
-    }
-    const { payload, meta } = result;
+    const { payload, meta } = buildPayload(miniappId, context ?? null);
     log("analytics effect triggered", {
       hasSent: hasSentRef.current,
       location: meta.rawSourceType,
@@ -113,6 +104,12 @@ var Analytics = ({
       return;
     }
     hasSentRef.current = true;
+    if (meta.usedFallback) {
+      log("context incomplete, defaulting source type to fallback", {
+        fallback: payload.sourceType,
+        original: meta.rawSourceType
+      });
+    }
     if (!payload.farcasterId) {
       log("farcaster fid missing; sending anonymous marker");
     }
