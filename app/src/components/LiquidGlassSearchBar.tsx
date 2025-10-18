@@ -1,54 +1,24 @@
 "use client";
 
-import { useState } from "react";
 import { motion } from "framer-motion";
 
-export default function LiquidGlassSearchBar() {
-  const [searchValue, setSearchValue] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<"success" | "error" | null>(null);
+interface LiquidGlassSearchBarProps {
+  searchValue: string;
+  onSearchChange: (value: string) => void;
+  onSearch: () => void;
+  isLoading: boolean;
+  showError: boolean;
+}
 
-  const handleSearch = async () => {
-    if (!searchValue.trim()) return;
-
-    setIsLoading(true);
-    setResult(null);
-
-    try {
-      const response = await fetch(`/api/rest/app/${encodeURIComponent(searchValue.trim())}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('API Response:', data);
-
-        // Use our API route's structured response
-        if (data.success && data.data && data.data.sources && data.data.sources.length > 0) {
-          setResult("success");
-          // Store miniapp data for future use (graphs, etc.)
-          console.log('Miniapp data:', data.data);
-        } else {
-          // No data found for this miniapp ID or empty response
-          setResult("error");
-        }
-      } else {
-        console.error('API Error:', response.status, response.statusText);
-        setResult("error");
-      }
-    } catch (error) {
-      console.error('Search error:', error);
-      setResult("error");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+export default function LiquidGlassSearchBar({
+  searchValue,
+  onSearchChange,
+  onSearch,
+  isLoading,
+  showError
+}: LiquidGlassSearchBarProps) {
   return (
-    <div className="flex items-center justify-center min-h-screen w-full relative bg-black">
+    <div className="flex items-center justify-center min-h-screen w-full relative bg-black p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.3, y: 50 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -56,7 +26,7 @@ export default function LiquidGlassSearchBar() {
           duration: 1.2,
           ease: [0.25, 0.46, 0.45, 0.94]
         }}
-        className="relative w-64 sm:w-72 md:w-80 lg:w-96 z-10 px-4"
+        className="relative z-10 px-4 w-64 sm:w-72 md:w-80 lg:w-96"
       >
         <motion.div
           initial={{ width: 0 }}
@@ -72,10 +42,10 @@ export default function LiquidGlassSearchBar() {
             type="text"
             placeholder="Enter miniapp domain..."
             value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
+            onChange={(e) => onSearchChange(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
-                handleSearch();
+                onSearch();
               }
             }}
             disabled={isLoading}
@@ -103,7 +73,7 @@ export default function LiquidGlassSearchBar() {
               delay: 0.8,
               ease: "easeOut"
             }}
-            onClick={handleSearch}
+            onClick={onSearch}
             disabled={isLoading}
             className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/70 hover:text-white transition-colors duration-200 bg-transparent border-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -116,23 +86,19 @@ export default function LiquidGlassSearchBar() {
             )}
           </motion.button>
         </motion.div>
-      </motion.div>
 
-      {/* Result Display */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: result ? 1 : 0 }}
-        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mt-8"
-      >
-        {result === "success" && (
-          <div className="bg-green-500/20 border border-green-500/50 backdrop-blur-sm rounded-lg px-6 py-3 text-green-300 text-center">
-            <p className="text-sm font-medium">Success!</p>
-          </div>
-        )}
-        {result === "error" && (
-          <div className="bg-red-500/20 border border-red-500/50 backdrop-blur-sm rounded-lg px-6 py-3 text-red-300 text-center">
-            <p className="text-sm font-medium">Error!</p>
-          </div>
+        {/* Result Display for errors */}
+        {showError && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 translate-y-full mt-2"
+          >
+            <div className="liquid-glass rounded-md px-4 py-2 text-center max-w-xs">
+              <p className="text-white/80 text-xs font-medium">No ID found!</p>
+              <p className="text-white/60 text-xs opacity-80 mt-1">Try searching for a different app ID</p>
+            </div>
+          </motion.div>
         )}
       </motion.div>
 
