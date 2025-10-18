@@ -5,6 +5,56 @@
     "version": ""
   },
   "paths": {
+    "/api/rest/number-of-users": {
+      "get": {
+        "summary": "number_of_users",
+        "description": "***\nThe GraphQl query for this endpoint is:\n``` graphql\nquery number_of_users {\n  sources_aggregate {\n    aggregate {\n      count(columns: farcaster_id, distinct: true)\n    }\n  }\n}\n```",
+        "parameters": [
+          {
+            "description": "Your x-hasura-admin-secret will be used for authentication of the API request.",
+            "in": "header",
+            "name": "x-hasura-admin-secret",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "sources_aggregate": {
+                      "description": "aggregated selection of \"sources\"",
+                      "nullable": false,
+                      "properties": {
+                        "aggregate": {
+                          "description": "aggregate fields of \"sources\"",
+                          "nullable": true,
+                          "properties": {
+                            "count": {
+                              "nullable": false,
+                              "title": "Int",
+                              "type": "integer"
+                            }
+                          },
+                          "title": "sources_aggregate_fields",
+                          "type": "object"
+                        }
+                      },
+                      "title": "sources_aggregate",
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Responses for GET /api/rest/number-of-users"
+          }
+        }
+      }
+    },
     "/api/rest/insert": {
       "post": {
         "summary": "insert",
@@ -96,6 +146,123 @@
               }
             },
             "description": "Responses for POST /api/rest/insert"
+          }
+        }
+      }
+    },
+    "/api/rest/top-users/{miniappId}": {
+      "get": {
+        "summary": "top_users",
+        "description": "***\nThe GraphQl query for this endpoint is:\n``` graphql\nquery top_users($miniappId: String!, $limit: Int = 10) {\n  sources_usage(where: {miniapp_id: {_eq: $miniappId}}, order_by: {usage_count: desc}, limit: $limit) {\n    farcaster_id\n    usage_count\n  }\n}\n```",
+        "parameters": [
+          {
+            "description": "Your x-hasura-admin-secret will be used for authentication of the API request.",
+            "in": "header",
+            "name": "x-hasura-admin-secret",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 10,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "_\"miniappId\" is required as part of the path_",
+            "in": "path",
+            "name": "miniappId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "sources_usage": {
+                      "items": {
+                        "description": "columns and relationships of \"sources_usage\"",
+                        "nullable": false,
+                        "properties": {
+                          "farcaster_id": {
+                            "nullable": true,
+                            "title": "String",
+                            "type": "string"
+                          },
+                          "usage_count": {
+                            "$ref": "#/components/schemas/bigint"
+                          }
+                        },
+                        "title": "sources_usage",
+                        "type": "object"
+                      },
+                      "nullable": false,
+                      "type": "array"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Responses for GET /api/rest/top-users/{miniappId}"
+          }
+        }
+      }
+    },
+    "/api/rest/number-of-miniapps": {
+      "get": {
+        "summary": "number_of_miniapps",
+        "description": "***\nThe GraphQl query for this endpoint is:\n``` graphql\nquery number_of_miniapps {\n  sources_aggregate {\n    aggregate {\n      count(columns: miniapp_id, distinct: true)\n    }\n  }\n}\n```",
+        "parameters": [
+          {
+            "description": "Your x-hasura-admin-secret will be used for authentication of the API request.",
+            "in": "header",
+            "name": "x-hasura-admin-secret",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "sources_aggregate": {
+                      "description": "aggregated selection of \"sources\"",
+                      "nullable": false,
+                      "properties": {
+                        "aggregate": {
+                          "description": "aggregate fields of \"sources\"",
+                          "nullable": true,
+                          "properties": {
+                            "count": {
+                              "nullable": false,
+                              "title": "Int",
+                              "type": "integer"
+                            }
+                          },
+                          "title": "sources_aggregate_fields",
+                          "type": "object"
+                        }
+                      },
+                      "title": "sources_aggregate",
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Responses for GET /api/rest/number-of-miniapps"
           }
         }
       }
@@ -268,6 +435,10 @@
       "timestamptz!": {
         "nullable": false,
         "title": "timestamptz"
+      },
+      "bigint": {
+        "nullable": true,
+        "title": "bigint"
       }
     }
   },
