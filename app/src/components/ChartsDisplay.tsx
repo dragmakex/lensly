@@ -5,13 +5,10 @@ import ShadcnPieChart from "./ShadcnPieChart";
 import ShadcnAreaChart from "./ShadcnAreaChart";
 import LiquidGlassButton from "./LiquidGlassButton";
 import { ArrowLeft } from "lucide-react";
+import type { ChartData } from "@/types/charts";
 
 interface ChartsDisplayProps {
-  chartData: {
-    pieData: any[];
-    areaData: any[];
-    sources: string[];
-  } | null;
+  chartData: ChartData | null;
   onBack: () => void;
 }
 

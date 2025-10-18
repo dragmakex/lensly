@@ -20,8 +20,7 @@ interface AnalyticsProps {
     context?: MiniAppContext | null;
     children?: ReactNode;
 }
-interface AnalyticsProviderProps extends Omit<AnalyticsProps, 'context'> {
-}
+type AnalyticsProviderProps = Omit<AnalyticsProps, 'context'>;
 
 declare const Analytics: ({ miniappId, endpoint, fetchImpl, onError, context, children }: AnalyticsProps) => react_jsx_runtime.JSX.Element;
 

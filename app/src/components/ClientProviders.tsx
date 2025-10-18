@@ -1,7 +1,7 @@
 'use client';
 
-import { AnalyticsProvider } from 'lensly';
-import type { AnalyticsProviderProps } from 'lensly';
+import { AnalyticsProvider } from '@sen-com/lensly';
+import type { AnalyticsProviderProps } from '@sen-com/lensly';
 import type { ReactNode } from 'react';
 
 const miniappId = process.env.NEXT_PUBLIC_MINIAPP_ID ?? 'development-miniapp';
