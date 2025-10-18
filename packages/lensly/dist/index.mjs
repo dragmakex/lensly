@@ -3,7 +3,6 @@ import { useEffect, useRef } from "react";
 import { Fragment, jsx } from "react/jsx-runtime";
 var DEFAULT_ENDPOINT = "https://api-slop.seraphim.zone/api/rest/insert";
 var FALLBACK_SOURCE_TYPE = "website";
-var VALID_SOURCE_TYPES = /* @__PURE__ */ new Set(["cast_share", "cast_embed", "notification", "launcher"]);
 var log = (...messages) => {
   if (typeof console === "undefined") {
     return;
@@ -22,7 +21,7 @@ var pickFetch = (override) => {
 };
 var buildPayload = (miniappId, context) => {
   const rawSourceType = context?.location?.type ?? null;
-  const sourceType = rawSourceType && VALID_SOURCE_TYPES.has(rawSourceType) ? rawSourceType : FALLBACK_SOURCE_TYPE;
+  const sourceType = rawSourceType ? rawSourceType : FALLBACK_SOURCE_TYPE;
   const fidValue = context?.user?.fid;
   const farcasterId = fidValue != null ? String(fidValue) : "";
   return {
