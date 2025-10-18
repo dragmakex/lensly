@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+. "$(dirname "$0")/_/husky.sh"
+
+set -e
+
+npm install --workspace packages/lensly
+npm install --workspace app
+
+npm run lint --workspace packages/lensly
+npm run lint --workspace app
+
+npm run build --workspace packages/lensly
+npm run build --workspace app

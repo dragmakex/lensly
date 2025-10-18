@@ -61,3 +61,5 @@ IDType --"App ID"--> AppDashboard --> End
 - As a user I want to see the total number of users by source plotted over time so that i can see historic patterns.
 - As a developer I want to integrate the sdk into my mini app so that I can access the functionality of the analytics platform.
 - As a user I want to be informed that the app I am searching for has no data so that I do not waste my time wondering why there is not data.
+- Tracking: Nutzerstandort, Nutzerverhalten, Aktivitäten, Kaufverhalten, Anzahl der Interaktionen je Nutzer, Klassifiaktion der Interatkionen, (datenkrake)
+

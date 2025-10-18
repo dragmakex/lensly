@@ -1,0 +1,14 @@
+{
+  "name": "lensly-monorepo",
+  "private": true,
+  "workspaces": [
+    "app",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "husky": "^9.1.7"
+  },
+  "scripts": {
+    "prepare": "if [ \"$CI\" = \"true\" ] || [ \"$HUSKY_SKIP_INSTALL\" = \"1\" ]; then exit 0; fi; husky install"
+  }
+}

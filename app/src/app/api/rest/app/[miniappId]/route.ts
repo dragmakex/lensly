@@ -2,11 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const API_BASE_URL = 'https://api-slop.seraphim.zone';
 
+type RouteContext = {
+  params: Promise<{ miniappId: string }> | { miniappId: string };
+};
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { miniappId: string } }
+  context: RouteContext
 ) {
-  const { miniappId } = params;
+  const { miniappId } = await Promise.resolve(context.params);
   const searchParams = request.nextUrl.searchParams;
   const limit = searchParams.get('limit') || '100';
   const offset = searchParams.get('offset') || '0';
