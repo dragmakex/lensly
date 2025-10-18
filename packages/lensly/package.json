@@ -1,10 +1,13 @@
 {
-  "name": "lensly",
+  "name": "@sen-com/lensly",
   "version": "0.1.1",
-  "description": "Dead simple Farcaster Mini App source tracker.",
+  "description": "Farcaster Mini App Analytics SDK",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "files": [
     "dist"
   ],
