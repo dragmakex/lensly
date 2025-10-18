@@ -1,17 +1,8 @@
 import * as react_jsx_runtime from 'react/jsx-runtime';
+import { Context } from '@farcaster/miniapp-core';
 import { ReactNode } from 'react';
 
-type MiniAppContext = {
-    location?: {
-        type?: string;
-    };
-    user?: {
-        fid?: string | number | null;
-    };
-    client?: {
-        clientFid?: string | number | null;
-    };
-};
+type MiniAppContext = Context.MiniAppContext;
 interface AnalyticsProps {
     miniappId: string;
     endpoint?: string;

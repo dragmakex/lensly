@@ -1,6 +1,6 @@
 {
   "name": "@sen-com/lensly",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Farcaster Mini App Analytics SDK",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

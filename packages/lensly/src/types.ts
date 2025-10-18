@@ -1,16 +1,7 @@
+import type { Context } from '@farcaster/miniapp-core';
 import type { ReactNode } from 'react';
 
-export type MiniAppContext = {
-  location?: {
-    type?: string;
-  };
-  user?: {
-    fid?: string | number | null;
-  };
-  client?: {
-    clientFid?: string | number | null;
-  };
-};
+export type MiniAppContext = Context.MiniAppContext;
 
 export interface AnalyticsProps {
   miniappId: string;
@@ -22,3 +13,7 @@ export interface AnalyticsProps {
 }
 
 export type AnalyticsProviderProps = Omit<AnalyticsProps, 'context'>;
+
+
+
+
