@@ -23,69 +23,35 @@ export const AnalyticsProvider = ({
 
   useEffect(() => {
     let cancelled = false;
-    let resolved = false;
-
-    const fallbackTimer = setTimeout(() => {
-      if (cancelled || resolved) {
-        return;
+    const timeout = setTimeout(() => {
+      if (!cancelled) {
+        log('context fetch timed out, sending fallback payload');
+        setContext(null);
       }
-      log('context fetch timed out; falling back to non-miniapp context');
-      setContext({ inMiniApp: false });
-    }, 2500);
+    }, 1500);
 
     const populateContext = async () => {
       try {
-        const [result, miniAppFlag] = await Promise.all([
-          sdk.context.catch((error) => {
-            log('sdk.context rejected', error);
-            return null;
-          }),
-          sdk.isInMiniApp().catch((error) => {
-            log('sdk.isInMiniApp rejected', error);
-            return undefined;
-          })
-        ]);
+        const result = await sdk.context;
+        if (!cancelled) {
+          const sanitized: MiniAppContext = {
+            location: result?.location?.type ? { type: result.location.type } : undefined,
+            user: result?.user?.fid != null ? { fid: result.user.fid } : undefined,
+            client: result?.client?.clientFid != null ? { clientFid: result.client.clientFid } : undefined
+          };
 
-        if (cancelled) {
-          return;
-        }
-
-        resolved = true;
-        clearTimeout(fallbackTimer);
-
-        if (!result) {
-          setContext({ inMiniApp: miniAppFlag ?? false });
-          log('mini app context unavailable; using inferred flag', {
-            inMiniApp: miniAppFlag ?? false
+          setContext(sanitized);
+          log('mini app context captured', {
+            location: sanitized.location?.type,
+            hasFid: sanitized.user?.fid != null
           });
-          return;
+          clearTimeout(timeout);
         }
-
-        const sanitized: MiniAppContext = {
-          location: result.location ?? undefined,
-          user: result.user?.fid != null ? { fid: result.user.fid } : undefined,
-          client: result.client
-            ? {
-                clientFid: result.client.clientFid,
-                platformType: result.client.platformType ?? null
-              }
-            : undefined,
-          inMiniApp: miniAppFlag
-        };
-
-        setContext(sanitized);
-        log('mini app context captured', {
-          location: sanitized.location?.type,
-          hasFid: sanitized.user?.fid != null,
-          inMiniApp: miniAppFlag
-        });
       } catch (error) {
-        if (cancelled) {
-          return;
-        }
-        clearTimeout(fallbackTimer);
         log('failed to fetch mini app context', error);
-        setContext({ inMiniApp: false });
+        if (!cancelled) {
+          setContext(null);
+        }
       }
     };
 
@@ -93,7 +59,7 @@ export const AnalyticsProvider = ({
 
     return () => {
       cancelled = true;
-      clearTimeout(fallbackTimer);
+      clearTimeout(timeout);
       log('mini app context fetch cancelled');
     };
   }, []);

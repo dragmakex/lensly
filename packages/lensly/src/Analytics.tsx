@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react';
 import type { AnalyticsProps, MiniAppContext } from './types';
 
 const DEFAULT_ENDPOINT = 'https://api-slop.seraphim.zone/api/rest/insert';
-const FALLBACK_SOURCE_TYPE = 'website';
 
 const log = (...messages: unknown[]) => {
   if (typeof console === 'undefined') {
@@ -23,53 +22,24 @@ const pickFetch = (override?: typeof fetch) => {
   return undefined;
 };
 
-const resolveSourceType = (context?: MiniAppContext | null) => {
-  const reportedType = context?.location && typeof context.location === 'object'
-    ? (context.location as { type?: string }).type
-    : undefined;
+const buildPayload = (miniappId: string, context: MiniAppContext) => {
+  const rawSourceType = context.location?.type ?? null;
 
-  if (reportedType) {
-    return {
-      sourceType: reportedType,
-      origin: 'location.type'
-    } as const;
+  if (!rawSourceType) {
+    return null;
   }
 
-  const clientFid = context?.client?.clientFid;
-  const platformType = context?.client?.platformType;
-  const inferredMiniApp = context?.inMiniApp;
-
-  if (inferredMiniApp || clientFid != null || platformType) {
-    return {
-      sourceType: 'farcaster_client',
-      origin: inferredMiniApp ? 'isInMiniApp' : platformType ? 'client.platformType' : 'client.clientFid'
-    } as const;
-  }
-
-  return {
-    sourceType: FALLBACK_SOURCE_TYPE,
-    origin: 'fallback'
-  } as const;
-};
-
-const buildPayload = (miniappId: string, context?: MiniAppContext | null) => {
-  const { sourceType, origin } = resolveSourceType(context);
-  const rawSourceType = context?.location?.type ?? null;
-
-  const fidValue = context?.user?.fid;
+  const fidValue = context.user?.fid;
   const farcasterId = fidValue != null ? String(fidValue) : '';
 
   return {
     payload: {
       miniappId,
-      sourceType,
+      sourceType: rawSourceType,
       farcasterId
     },
     meta: {
-      rawSourceType,
-      usedFallback: sourceType === FALLBACK_SOURCE_TYPE && rawSourceType !== FALLBACK_SOURCE_TYPE,
-      resolvedBy: origin,
-      inMiniApp: context?.inMiniApp ?? null
+      rawSourceType
     }
   };
 };
@@ -90,28 +60,26 @@ export const Analytics = ({
       return;
     }
 
-    const { payload, meta } = buildPayload(miniappId, context ?? null);
+    if (context === null) {
+      log('context unavailable; waiting for source before sending');
+      return;
+    }
+
+    const result = buildPayload(miniappId, context);
+
+    if (!result) {
+      log('source type missing from context; deferring analytics send');
+      return;
+    }
+
+    const { payload, meta } = result;
 
     log('analytics effect triggered', {
       hasSent: hasSentRef.current,
       location: meta.rawSourceType,
       resolvedSource: payload.sourceType,
-      resolver: meta.resolvedBy,
-      inMiniApp: meta.inMiniApp,
       hasFid: Boolean(payload.farcasterId)
     });
-
-    const expectingMiniAppData = context !== null && context?.inMiniApp !== false;
-
-    if (expectingMiniAppData && !payload.farcasterId) {
-      log('deferring analytics send until Farcaster fid is available');
-      return;
-    }
-
-    if (expectingMiniAppData && payload.sourceType === FALLBACK_SOURCE_TYPE) {
-      log('deferring analytics send until source type resolves');
-      return;
-    }
 
     if (hasSentRef.current) {
       log('skipping send because event already dispatched');
@@ -126,13 +94,6 @@ export const Analytics = ({
     }
 
     hasSentRef.current = true;
-
-    if (meta.usedFallback) {
-      log('context incomplete, defaulting source type to fallback', {
-        fallback: payload.sourceType,
-        original: meta.rawSourceType
-      });
-    }
 
     if (!payload.farcasterId) {
       log('farcaster fid missing; sending anonymous marker');
@@ -168,14 +129,14 @@ export const Analytics = ({
         });
       })
       .catch((error) => {
-      if (onError) {
-        onError(error);
-        log('analytics delivery failed (reported to onError)', error);
-        return;
-      }
+        if (onError) {
+          onError(error);
+          log('analytics delivery failed (reported to onError)', error);
+          return;
+        }
 
-      log('analytics delivery failed', error);
-    });
+        log('analytics delivery failed', error);
+      });
   }, [context, endpoint, fetchImpl, miniappId, onError]);
 
   return <>{children}</>;
