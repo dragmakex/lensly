@@ -2,7 +2,6 @@
 import { useEffect, useRef } from "react";
 import { Fragment, jsx } from "react/jsx-runtime";
 var DEFAULT_ENDPOINT = "https://api-slop.seraphim.zone/api/rest/insert";
-var FALLBACK_SOURCE_TYPE = "website";
 var log = (...messages) => {
   if (typeof console === "undefined") {
     return;
@@ -19,44 +18,21 @@ var pickFetch = (override) => {
   }
   return void 0;
 };
-var resolveSourceType = (context) => {
-  const reportedType = context?.location && typeof context.location === "object" ? context.location.type : void 0;
-  if (reportedType) {
-    return {
-      sourceType: reportedType,
-      origin: "location.type"
-    };
-  }
-  const clientFid = context?.client?.clientFid;
-  const platformType = context?.client?.platformType;
-  const inferredMiniApp = context?.inMiniApp;
-  if (inferredMiniApp || clientFid != null || platformType) {
-    return {
-      sourceType: "farcaster_client",
-      origin: inferredMiniApp ? "isInMiniApp" : platformType ? "client.platformType" : "client.clientFid"
-    };
-  }
-  return {
-    sourceType: FALLBACK_SOURCE_TYPE,
-    origin: "fallback"
-  };
-};
 var buildPayload = (miniappId, context) => {
-  const { sourceType, origin } = resolveSourceType(context);
-  const rawSourceType = context?.location?.type ?? null;
-  const fidValue = context?.user?.fid;
+  const rawSourceType = context.location?.type ?? null;
+  if (!rawSourceType) {
+    return null;
+  }
+  const fidValue = context.user?.fid;
   const farcasterId = fidValue != null ? String(fidValue) : "";
   return {
     payload: {
       miniappId,
-      sourceType,
+      sourceType: rawSourceType,
       farcasterId
     },
     meta: {
-      rawSourceType,
-      usedFallback: sourceType === FALLBACK_SOURCE_TYPE && rawSourceType !== FALLBACK_SOURCE_TYPE,
-      resolvedBy: origin,
-      inMiniApp: context?.inMiniApp ?? null
+      rawSourceType
     }
   };
 };
@@ -74,24 +50,22 @@ var Analytics = ({
       log("context not resolved yet, waiting before sending");
       return;
     }
-    const { payload, meta } = buildPayload(miniappId, context ?? null);
+    if (context === null) {
+      log("context unavailable; waiting for source before sending");
+      return;
+    }
+    const result = buildPayload(miniappId, context);
+    if (!result) {
+      log("source type missing from context; deferring analytics send");
+      return;
+    }
+    const { payload, meta } = result;
     log("analytics effect triggered", {
       hasSent: hasSentRef.current,
       location: meta.rawSourceType,
       resolvedSource: payload.sourceType,
-      resolver: meta.resolvedBy,
-      inMiniApp: meta.inMiniApp,
       hasFid: Boolean(payload.farcasterId)
     });
-    const expectingMiniAppData = context !== null && context?.inMiniApp !== false;
-    if (expectingMiniAppData && !payload.farcasterId) {
-      log("deferring analytics send until Farcaster fid is available");
-      return;
-    }
-    if (expectingMiniAppData && payload.sourceType === FALLBACK_SOURCE_TYPE) {
-      log("deferring analytics send until source type resolves");
-      return;
-    }
     if (hasSentRef.current) {
       log("skipping send because event already dispatched");
       return;
@@ -103,12 +77,6 @@ var Analytics = ({
       return;
     }
     hasSentRef.current = true;
-    if (meta.usedFallback) {
-      log("context incomplete, defaulting source type to fallback", {
-        fallback: payload.sourceType,
-        original: meta.rawSourceType
-      });
-    }
     if (!payload.farcasterId) {
       log("farcaster fid missing; sending anonymous marker");
     }
@@ -169,66 +137,39 @@ var AnalyticsProvider = ({
   const [context, setContext] = useState(void 0);
   useEffect2(() => {
     let cancelled = false;
-    let resolved = false;
-    const fallbackTimer = setTimeout(() => {
-      if (cancelled || resolved) {
-        return;
+    const timeout = setTimeout(() => {
+      if (!cancelled) {
+        log2("context fetch timed out, sending fallback payload");
+        setContext(null);
       }
-      log2("context fetch timed out; falling back to non-miniapp context");
-      setContext({ inMiniApp: false });
-    }, 2500);
+    }, 1500);
     const populateContext = async () => {
       try {
-        const [result, miniAppFlag] = await Promise.all([
-          sdk.context.catch((error) => {
-            log2("sdk.context rejected", error);
-            return null;
-          }),
-          sdk.isInMiniApp().catch((error) => {
-            log2("sdk.isInMiniApp rejected", error);
-            return void 0;
-          })
-        ]);
-        if (cancelled) {
-          return;
-        }
-        resolved = true;
-        clearTimeout(fallbackTimer);
-        if (!result) {
-          setContext({ inMiniApp: miniAppFlag ?? false });
-          log2("mini app context unavailable; using inferred flag", {
-            inMiniApp: miniAppFlag ?? false
+        const result = await sdk.context;
+        if (!cancelled) {
+          const sanitized = {
+            location: result?.location?.type ? { type: result.location.type } : void 0,
+            user: result?.user?.fid != null ? { fid: result.user.fid } : void 0,
+            client: result?.client?.clientFid != null ? { clientFid: result.client.clientFid } : void 0
+          };
+          setContext(sanitized);
+          log2("mini app context captured", {
+            location: sanitized.location?.type,
+            hasFid: sanitized.user?.fid != null
           });
-          return;
+          clearTimeout(timeout);
         }
-        const sanitized = {
-          location: result.location ?? void 0,
-          user: result.user?.fid != null ? { fid: result.user.fid } : void 0,
-          client: result.client ? {
-            clientFid: result.client.clientFid,
-            platformType: result.client.platformType ?? null
-          } : void 0,
-          inMiniApp: miniAppFlag
-        };
-        setContext(sanitized);
-        log2("mini app context captured", {
-          location: sanitized.location?.type,
-          hasFid: sanitized.user?.fid != null,
-          inMiniApp: miniAppFlag
-        });
       } catch (error) {
-        if (cancelled) {
-          return;
-        }
-        clearTimeout(fallbackTimer);
         log2("failed to fetch mini app context", error);
-        setContext({ inMiniApp: false });
+        if (!cancelled) {
+          setContext(null);
+        }
       }
     };
     populateContext();
     return () => {
       cancelled = true;
-      clearTimeout(fallbackTimer);
+      clearTimeout(timeout);
       log2("mini app context fetch cancelled");
     };
   }, []);
