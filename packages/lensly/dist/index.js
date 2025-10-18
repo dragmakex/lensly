@@ -55,9 +55,31 @@ var pickFetch = (override) => {
   }
   return void 0;
 };
+var resolveSourceType = (context) => {
+  const reportedType = context?.location && typeof context.location === "object" ? context.location.type : void 0;
+  if (reportedType) {
+    return {
+      sourceType: reportedType,
+      origin: "location.type"
+    };
+  }
+  const clientFid = context?.client?.clientFid;
+  const platformType = context?.client?.platformType;
+  const inferredMiniApp = context?.inMiniApp;
+  if (inferredMiniApp || clientFid != null || platformType) {
+    return {
+      sourceType: "farcaster_client",
+      origin: inferredMiniApp ? "isInMiniApp" : platformType ? "client.platformType" : "client.clientFid"
+    };
+  }
+  return {
+    sourceType: FALLBACK_SOURCE_TYPE,
+    origin: "fallback"
+  };
+};
 var buildPayload = (miniappId, context) => {
+  const { sourceType, origin } = resolveSourceType(context);
   const rawSourceType = context?.location?.type ?? null;
-  const sourceType = rawSourceType ? rawSourceType : FALLBACK_SOURCE_TYPE;
   const fidValue = context?.user?.fid;
   const farcasterId = fidValue != null ? String(fidValue) : "";
   return {
@@ -68,7 +90,9 @@ var buildPayload = (miniappId, context) => {
     },
     meta: {
       rawSourceType,
-      usedFallback: sourceType === FALLBACK_SOURCE_TYPE && rawSourceType !== FALLBACK_SOURCE_TYPE
+      usedFallback: sourceType === FALLBACK_SOURCE_TYPE && rawSourceType !== FALLBACK_SOURCE_TYPE,
+      resolvedBy: origin,
+      inMiniApp: context?.inMiniApp ?? null
     }
   };
 };
@@ -91,6 +115,8 @@ var Analytics = ({
       hasSent: hasSentRef.current,
       location: meta.rawSourceType,
       resolvedSource: payload.sourceType,
+      resolver: meta.resolvedBy,
+      inMiniApp: meta.inMiniApp,
       hasFid: Boolean(payload.farcasterId)
     });
     if (hasSentRef.current) {
@@ -173,29 +199,37 @@ var AnalyticsProvider = ({
     const timeout = setTimeout(() => {
       if (!cancelled) {
         log2("context fetch timed out, sending fallback payload");
-        setContext(null);
+        setContext({ inMiniApp: void 0 });
       }
-    }, 1500);
+    }, 2500);
     const populateContext = async () => {
       try {
-        const result = await import_miniapp_sdk.default.context;
+        const [result, inMiniApp] = await Promise.all([
+          import_miniapp_sdk.default.context.catch(() => null),
+          import_miniapp_sdk.default.isInMiniApp().catch(() => false)
+        ]);
         if (!cancelled) {
           const sanitized = {
-            location: result?.location?.type ? { type: result.location.type } : void 0,
+            location: result?.location ?? void 0,
             user: result?.user?.fid != null ? { fid: result.user.fid } : void 0,
-            client: result?.client?.clientFid != null ? { clientFid: result.client.clientFid } : void 0
+            client: result?.client ? {
+              clientFid: result.client.clientFid,
+              platformType: result.client.platformType
+            } : void 0,
+            inMiniApp
           };
           setContext(sanitized);
           log2("mini app context captured", {
             location: sanitized.location?.type,
-            hasFid: sanitized.user?.fid != null
+            hasFid: sanitized.user?.fid != null,
+            inMiniApp
           });
           clearTimeout(timeout);
         }
       } catch (error) {
         log2("failed to fetch mini app context", error);
         if (!cancelled) {
-          setContext(null);
+          setContext({ inMiniApp: void 0 });
         }
       }
     };

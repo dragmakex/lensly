@@ -26,31 +26,41 @@ export const AnalyticsProvider = ({
     const timeout = setTimeout(() => {
       if (!cancelled) {
         log('context fetch timed out, sending fallback payload');
-        setContext(null);
+        setContext({ inMiniApp: undefined });
       }
-    }, 1500);
+    }, 2500);
 
     const populateContext = async () => {
       try {
-        const result = await sdk.context;
+        const [result, inMiniApp] = await Promise.all([
+          sdk.context.catch(() => null),
+          sdk.isInMiniApp().catch(() => false)
+        ]);
         if (!cancelled) {
           const sanitized: MiniAppContext = {
-            location: result?.location?.type ? { type: result.location.type } : undefined,
+            location: result?.location ?? undefined,
             user: result?.user?.fid != null ? { fid: result.user.fid } : undefined,
-            client: result?.client?.clientFid != null ? { clientFid: result.client.clientFid } : undefined
+            client: result?.client
+              ? {
+                  clientFid: result.client.clientFid,
+                  platformType: result.client.platformType
+                }
+              : undefined,
+            inMiniApp
           };
 
           setContext(sanitized);
           log('mini app context captured', {
             location: sanitized.location?.type,
-            hasFid: sanitized.user?.fid != null
+            hasFid: sanitized.user?.fid != null,
+            inMiniApp
           });
           clearTimeout(timeout);
         }
       } catch (error) {
         log('failed to fetch mini app context', error);
         if (!cancelled) {
-          setContext(null);
+          setContext({ inMiniApp: undefined });
         }
       }
     };
