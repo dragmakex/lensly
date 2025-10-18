@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import type { AnalyticsProps, MiniAppContext } from './types';
 
 const DEFAULT_ENDPOINT = 'https://api-slop.seraphim.zone/api/rest/insert';
+const FALLBACK_SOURCE_TYPE = 'website';
 
 const log = (...messages: unknown[]) => {
   if (typeof console === 'undefined') {
@@ -22,24 +23,22 @@ const pickFetch = (override?: typeof fetch) => {
   return undefined;
 };
 
-const buildPayload = (miniappId: string, context: MiniAppContext) => {
-  const rawSourceType = context.location?.type ?? null;
+const buildPayload = (miniappId: string, context?: MiniAppContext | null) => {
+  const rawSourceType = context?.location?.type ?? null;
+  const sourceType = rawSourceType ? rawSourceType : FALLBACK_SOURCE_TYPE;
 
-  if (!rawSourceType) {
-    return null;
-  }
-
-  const fidValue = context.user?.fid;
+  const fidValue = context?.user?.fid;
   const farcasterId = fidValue != null ? String(fidValue) : '';
 
   return {
     payload: {
       miniappId,
-      sourceType: rawSourceType,
+      sourceType,
       farcasterId
     },
     meta: {
-      rawSourceType
+      rawSourceType,
+      usedFallback: sourceType === FALLBACK_SOURCE_TYPE && rawSourceType !== FALLBACK_SOURCE_TYPE
     }
   };
 };
@@ -60,25 +59,13 @@ export const Analytics = ({
       return;
     }
 
-    if (context === null) {
-      log('context unavailable; waiting for source before sending');
-      return;
-    }
-
-    const result = buildPayload(miniappId, context);
-
-    if (!result) {
-      log('source type missing from context; deferring analytics send');
-      return;
-    }
-
-    const { payload, meta } = result;
+    const { payload, meta } = buildPayload(miniappId, context ?? null);
 
     log('analytics effect triggered', {
       hasSent: hasSentRef.current,
       location: meta.rawSourceType,
       resolvedSource: payload.sourceType,
-      hasFid: Boolean(payload.farcasterId)
+  hasFid: Boolean(payload.farcasterId)
     });
 
     if (hasSentRef.current) {
@@ -94,6 +81,13 @@ export const Analytics = ({
     }
 
     hasSentRef.current = true;
+
+    if (meta.usedFallback) {
+      log('context incomplete, defaulting source type to fallback', {
+        fallback: payload.sourceType,
+        original: meta.rawSourceType
+      });
+    }
 
     if (!payload.farcasterId) {
       log('farcaster fid missing; sending anonymous marker');
@@ -129,14 +123,14 @@ export const Analytics = ({
         });
       })
       .catch((error) => {
-        if (onError) {
-          onError(error);
-          log('analytics delivery failed (reported to onError)', error);
-          return;
-        }
+      if (onError) {
+        onError(error);
+        log('analytics delivery failed (reported to onError)', error);
+        return;
+      }
 
-        log('analytics delivery failed', error);
-      });
+      log('analytics delivery failed', error);
+    });
   }, [context, endpoint, fetchImpl, miniappId, onError]);
 
   return <>{children}</>;
