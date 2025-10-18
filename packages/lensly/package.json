@@ -11,7 +11,7 @@
   "scripts": {
     "build": "tsup",
     "clean": "rm -rf dist",
-    "prepare": "npm run build"
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "tsup": "^8.0.0"
