@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+. "$(dirname "$0")/_/husky.sh"
+
+# ensure interactive prompt works when invoked via Husky
+exec < /dev/tty
+
+# run Commitizen in hook mode; allow exit to avoid breaking commit when user aborts
+npx --no-install cz --hook || true

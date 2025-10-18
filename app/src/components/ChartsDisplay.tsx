@@ -22,7 +22,7 @@ export default function ChartsDisplay({ chartData, onBack }: ChartsDisplayProps)
         duration: 1.2,
         ease: [0.25, 0.46, 0.45, 0.94]
       }}
-      className="relative z-10 w-full max-w-4xl"
+      className="relative z-10 w-full h-full flex items-center justify-center px-4"
     >
       {/* Back Button */}
       <div className="absolute top-4 left-4 z-20">
@@ -33,9 +33,8 @@ export default function ChartsDisplay({ chartData, onBack }: ChartsDisplayProps)
       </div>
 
       {/* Charts Container */}
-      <div className="pt-16 pb-4 h-[calc(100vh-6rem)] overflow-y-auto">
-        <div className="min-w-max px-4">
-          <div className="flex flex-col lg:flex-row gap-4">
+      <div className="w-full h-full overflow-y-auto pt-20 pb-8">
+        <div className="flex flex-col lg:flex-row gap-6 items-center justify-center min-h-full">
             {/* Pie Chart */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -65,7 +64,6 @@ export default function ChartsDisplay({ chartData, onBack }: ChartsDisplayProps)
               />
             </motion.div>
           </div>
-        </div>
       </div>
     </motion.div>
   );

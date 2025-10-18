@@ -1,6 +1,6 @@
 "use client";
 
-import { Pie, PieChart, ResponsiveContainer, Cell, Legend, Tooltip } from "recharts";
+import { Pie, PieChart, ResponsiveContainer, Cell, Legend } from "recharts";
 import type { LegendPayload } from "recharts";
 import type { PieDatum } from "@/types/charts";
 
@@ -24,23 +24,7 @@ export default function ShadcnPieChart({
     '#6D28D9', // Purple-600
   ];
 
-  type TooltipContentProps = {
-    active?: boolean;
-    payload?: Array<{ value: number; name: string; payload: PieDatum }>;
-  };
-
-  const CustomTooltip = ({ active, payload }: TooltipContentProps) => {
-    if (active && payload && payload[0]) {
-      return (
-        <div className="liquid-glass rounded-lg px-3 py-2 text-white text-xs">
-          <p className="font-medium">{payload[0].name}</p>
-          <p>{payload[0].value} ({payload[0].payload.percentage}%)</p>
-        </div>
-      );
-    }
-    return null;
-  };
-
+  
   type LabelProps = {
     cx?: number | string;
     cy?: number | string;
@@ -129,7 +113,7 @@ export default function ShadcnPieChart({
         {/* Chart */}
         <div className="flex-1 w-full flex items-center justify-center">
           {chartData.length > 0 ? (
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" style={{ pointerEvents: 'none' }}>
               <PieChart>
                 <Pie
                   data={chartData}
@@ -149,8 +133,7 @@ export default function ShadcnPieChart({
                     />
                   ))}
                 </Pie>
-                <Tooltip content={<CustomTooltip />} />
-                <Legend
+                  <Legend
                   verticalAlign="bottom"
                   height={36}
                   wrapperStyle={{
