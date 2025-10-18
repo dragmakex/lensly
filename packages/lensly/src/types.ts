@@ -12,7 +12,7 @@ export type MiniAppContext = {
     clientFid?: string | number | null;
     platformType?: string | null;
   };
-  inMiniApp?: boolean
+  inMiniApp?: boolean;
 };
 
 export interface AnalyticsProps {
