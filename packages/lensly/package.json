@@ -14,7 +14,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "tsup": "^8.0.0"
+    "@farcaster/miniapp-sdk": "^0.2.1"
   },
   "peerDependencies": {
     "@farcaster/miniapp-sdk": "^0.2.0",
@@ -24,6 +24,7 @@
     "@farcaster/miniapp-sdk": "^0.2.1",
     "@types/react": "^19.0.1",
     "react": "^19.1.0",
+    "tsup": "^8.0.0",
     "typescript": "^5.4.0"
   }
 }
