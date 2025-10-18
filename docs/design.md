@@ -44,6 +44,10 @@ Subtext: Type in your App-ID inside the searchbar and gain access to your app da
 - idea: application tipps for the use of the app:
 - upper 3th of the page
 
-## User requirements for front end -- profile of an miniApp performance
+## Slide 4: User requirements for front end -- profile of an miniApp performance - DEV View
+- Logo nextcloud analitics on the top identical like the other slides
+- Slogan of the dev version needs to be implemented here: Connect your brand with your users!
+- display of the app ID: APP-ID: (Example App-ID), text in purple
 
-## User requirements for front end -- profile of an miniApp performance
+[## User requirements for front end -- profile of an miniApp performance - User View
+Design development for after showcase 19.10.]
