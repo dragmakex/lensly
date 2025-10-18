@@ -119,6 +119,15 @@ var Analytics = ({
       inMiniApp: meta.inMiniApp,
       hasFid: Boolean(payload.farcasterId)
     });
+    const expectingMiniAppData = context !== null && context?.inMiniApp !== false;
+    if (expectingMiniAppData && !payload.farcasterId) {
+      log("deferring analytics send until Farcaster fid is available");
+      return;
+    }
+    if (expectingMiniAppData && payload.sourceType === FALLBACK_SOURCE_TYPE) {
+      log("deferring analytics send until source type resolves");
+      return;
+    }
     if (hasSentRef.current) {
       log("skipping send because event already dispatched");
       return;
@@ -196,47 +205,66 @@ var AnalyticsProvider = ({
   const [context, setContext] = (0, import_react2.useState)(void 0);
   (0, import_react2.useEffect)(() => {
     let cancelled = false;
-    const timeout = setTimeout(() => {
-      if (!cancelled) {
-        log2("context fetch timed out, sending fallback payload");
-        setContext({ inMiniApp: void 0 });
+    let resolved = false;
+    const fallbackTimer = setTimeout(() => {
+      if (cancelled || resolved) {
+        return;
       }
+      log2("context fetch timed out; falling back to non-miniapp context");
+      setContext({ inMiniApp: false });
     }, 2500);
     const populateContext = async () => {
       try {
-        const [result, inMiniApp] = await Promise.all([
-          import_miniapp_sdk.default.context.catch(() => null),
-          import_miniapp_sdk.default.isInMiniApp().catch(() => false)
+        const [result, miniAppFlag] = await Promise.all([
+          import_miniapp_sdk.default.context.catch((error) => {
+            log2("sdk.context rejected", error);
+            return null;
+          }),
+          import_miniapp_sdk.default.isInMiniApp().catch((error) => {
+            log2("sdk.isInMiniApp rejected", error);
+            return void 0;
+          })
         ]);
-        if (!cancelled) {
-          const sanitized = {
-            location: result?.location ?? void 0,
-            user: result?.user?.fid != null ? { fid: result.user.fid } : void 0,
-            client: result?.client ? {
-              clientFid: result.client.clientFid,
-              platformType: result.client.platformType
-            } : void 0,
-            inMiniApp
-          };
-          setContext(sanitized);
-          log2("mini app context captured", {
-            location: sanitized.location?.type,
-            hasFid: sanitized.user?.fid != null,
-            inMiniApp
+        if (cancelled) {
+          return;
+        }
+        resolved = true;
+        clearTimeout(fallbackTimer);
+        if (!result) {
+          setContext({ inMiniApp: miniAppFlag ?? false });
+          log2("mini app context unavailable; using inferred flag", {
+            inMiniApp: miniAppFlag ?? false
           });
-          clearTimeout(timeout);
+          return;
         }
+        const sanitized = {
+          location: result.location ?? void 0,
+          user: result.user?.fid != null ? { fid: result.user.fid } : void 0,
+          client: result.client ? {
+            clientFid: result.client.clientFid,
+            platformType: result.client.platformType ?? null
+          } : void 0,
+          inMiniApp: miniAppFlag
+        };
+        setContext(sanitized);
+        log2("mini app context captured", {
+          location: sanitized.location?.type,
+          hasFid: sanitized.user?.fid != null,
+          inMiniApp: miniAppFlag
+        });
       } catch (error) {
-        log2("failed to fetch mini app context", error);
-        if (!cancelled) {
-          setContext({ inMiniApp: void 0 });
+        if (cancelled) {
+          return;
         }
+        clearTimeout(fallbackTimer);
+        log2("failed to fetch mini app context", error);
+        setContext({ inMiniApp: false });
       }
     };
     populateContext();
     return () => {
       cancelled = true;
-      clearTimeout(timeout);
+      clearTimeout(fallbackTimer);
       log2("mini app context fetch cancelled");
     };
   }, []);

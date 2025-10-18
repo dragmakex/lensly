@@ -101,6 +101,18 @@ export const Analytics = ({
       hasFid: Boolean(payload.farcasterId)
     });
 
+    const expectingMiniAppData = context !== null && context?.inMiniApp !== false;
+
+    if (expectingMiniAppData && !payload.farcasterId) {
+      log('deferring analytics send until Farcaster fid is available');
+      return;
+    }
+
+    if (expectingMiniAppData && payload.sourceType === FALLBACK_SOURCE_TYPE) {
+      log('deferring analytics send until source type resolves');
+      return;
+    }
+
     if (hasSentRef.current) {
       log('skipping send because event already dispatched');
       return;
