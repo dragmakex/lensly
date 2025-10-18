@@ -1,0 +1,8 @@
+{
+  "name": "lensly-monorepo",
+  "private": true,
+  "workspaces": [
+    "app",
+    "packages/*"
+  ]
+}
