@@ -4,5 +4,11 @@
   "workspaces": [
     "app",
     "packages/*"
-  ]
+  ],
+  "devDependencies": {
+    "husky": "^9.1.7"
+  },
+  "scripts": {
+    "prepare": "husky"
+  }
 }

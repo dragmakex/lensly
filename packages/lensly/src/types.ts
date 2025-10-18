@@ -21,4 +21,4 @@ export interface AnalyticsProps {
   children?: ReactNode;
 }
 
-export interface AnalyticsProviderProps extends Omit<AnalyticsProps, 'context'> {}
+export type AnalyticsProviderProps = Omit<AnalyticsProps, 'context'>;

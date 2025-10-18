@@ -6,6 +6,13 @@ import sdk from "@farcaster/miniapp-sdk";
 import LandingScreen from "@/components/LandingScreen";
 import LiquidGlassSearchBar from "@/components/LiquidGlassSearchBar";
 import ChartsDisplay from "@/components/ChartsDisplay";
+import type {
+  ChartData,
+  AppResponse,
+  PieDatum,
+  AreaDataPoint,
+  SourceRecord
+} from "@/types/charts";
 
 export default function Home() {
   const [currentScreen, setCurrentScreen] = useState<"landing" | "search">("landing");
@@ -13,11 +20,7 @@ export default function Home() {
   const [searchValue, setSearchValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<"success" | "error" | null>(null);
-  const [chartData, setChartData] = useState<{
-    pieData: any[];
-    areaData: any[];
-    sources: string[];
-  } | null>(null);
+  const [chartData, setChartData] = useState<ChartData | null>(null);
   const [showCharts, setShowCharts] = useState(false);
 
   // Farcaster Mini App Integration
@@ -59,7 +62,7 @@ export default function Home() {
     setResult(null);
 
     try {
-      const response = await fetch(`/api/rest/app/${encodeURIComponent(searchValue.trim())}`, {
+  const response = await fetch(`/api/rest/app/${encodeURIComponent(searchValue.trim())}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -67,7 +70,7 @@ export default function Home() {
       });
 
       if (response.ok) {
-        const data = await response.json();
+  const data: AppResponse = await response.json();
         console.log('API Response:', data);
 
         // Use our API route's structured response
@@ -75,22 +78,24 @@ export default function Home() {
           setResult("success");
 
           // Aggregate source data for pie chart
-          const sourceCounts: { [key: string]: number } = {};
-          data.data.sources.forEach((source: any) => {
+          const sourceCounts: Record<string, number> = {};
+          const sourcesList: SourceRecord[] = data.data.sources;
+
+          sourcesList.forEach((source) => {
             if (source.source_type) {
               sourceCounts[source.source_type] = (sourceCounts[source.source_type] || 0) + 1;
             }
           });
 
           const totalCount = Object.values(sourceCounts).reduce((sum: number, count: number) => sum + count, 0);
-          const aggregatedData = Object.entries(sourceCounts).map(([source, count]) => ({
+          const aggregatedData: PieDatum[] = Object.entries(sourceCounts).map(([source, count]) => ({
             source,
             count,
             percentage: Math.round((count / totalCount) * 100)
           }));
 
           // Generate time series data for area chart (last 7 days)
-          const timeSeriesData = [];
+          const timeSeriesData: AreaDataPoint[] = [];
           const sources = Object.keys(sourceCounts);
 
           for (let i = 6; i >= 0; i--) {
@@ -98,7 +103,7 @@ export default function Home() {
             date.setDate(date.getDate() - i);
             const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
-            const dataPoint: any = { date: dateStr };
+            const dataPoint: AreaDataPoint = { date: dateStr };
             sources.forEach(source => {
               // Generate realistic percentage data that sums to 100%
               const basePercentage = (sourceCounts[source] / totalCount) * 100;
@@ -107,9 +112,15 @@ export default function Home() {
             });
 
             // Normalize to ensure percentages sum to 100
-            const total = sources.reduce((sum, source) => sum + dataPoint[source], 0);
+            const total = sources.reduce((sum, source) => {
+              const rawValue = dataPoint[source];
+              const numericValue = typeof rawValue === 'number' ? rawValue : Number(rawValue);
+              return Number.isFinite(numericValue) ? sum + numericValue : sum;
+            }, 0);
             sources.forEach(source => {
-              dataPoint[source] = Math.round((dataPoint[source] / total) * 100);
+              const rawValue = dataPoint[source];
+              const numericValue = typeof rawValue === 'number' ? rawValue : Number(rawValue);
+              dataPoint[source] = total > 0 ? Math.round((numericValue / total) * 100) : 0;
             });
 
             timeSeriesData.push(dataPoint);

@@ -14,7 +14,8 @@
   "scripts": {
     "build": "tsup",
     "clean": "rm -rf dist",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "lint": "eslint \"src/**/*.{ts,tsx}\""
   },
   "dependencies": {
     "@farcaster/miniapp-sdk": "^0.2.1"
@@ -26,6 +27,9 @@
   "devDependencies": {
     "@farcaster/miniapp-sdk": "^0.2.1",
     "@types/react": "^19.0.1",
+    "@typescript-eslint/eslint-plugin": "^8.12.2",
+    "@typescript-eslint/parser": "^8.12.2",
+    "eslint": "^9.13.0",
     "react": "^19.1.0",
     "tsup": "^8.0.0",
     "typescript": "^5.4.0"
