@@ -44,7 +44,7 @@ For more information check out our [integration guide](./docs/docs/developer-gui
 
 - [Demo](https://youtube.com/shorts/l37PzlkKhU0)
 - [Website](https://lensly.seraphim.zone)
-- [Mini App]([here](https://farcaster.xyz/~/mini-apps/launch?domain=lensly.seraphim.zone)
+- [Mini App](https://farcaster.xyz/~/mini-apps/launch?domain=lensly.seraphim.zone)
 
 ---
 
