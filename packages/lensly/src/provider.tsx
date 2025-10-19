@@ -34,17 +34,8 @@ export const AnalyticsProvider = ({
       try {
         const result = await sdk.context;
         if (!cancelled) {
-          const sanitized: MiniAppContext = {
-            location: result?.location?.type ? { type: result.location.type } : undefined,
-            user: result?.user?.fid != null ? { fid: result.user.fid } : undefined,
-            client: result?.client?.clientFid != null ? { clientFid: result.client.clientFid } : undefined
-          };
-
-          setContext(sanitized);
-          log('mini app context captured', {
-            location: sanitized.location?.type,
-            hasFid: sanitized.user?.fid != null
-          });
+          setContext(result as MiniAppContext);
+          log('mini app context captured', result);
           clearTimeout(timeout);
         }
       } catch (error) {

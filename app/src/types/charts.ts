@@ -42,3 +42,5 @@ export type UsersResponse = {
   message?: string;
   error?: string;
 };
+
+export type TopUser = UserRecord;
