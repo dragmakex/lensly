@@ -81,7 +81,7 @@ For more information check out our [integration guide](./docs/docs/developer-gui
   
 ## Important Links
 
-- [Demo](https://youtube.com/shorts/l37PzlkKhU0)
+- [Demo](https://lensly.seraphim.zone/demo.mov)
 - [Website](https://lensly.seraphim.zone)
 - [Mini App](https://farcaster.xyz/~/mini-apps/launch?domain=lensly.seraphim.zone)
 
