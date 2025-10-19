@@ -21,6 +21,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<"success" | "error" | null>(null);
   const [chartData, setChartData] = useState<ChartData | null>(null);
+  const [userData, setUserData] = useState<Array<{ user_id: string; user_name: string; count: number }> | null>(null);
   const [showCharts, setShowCharts] = useState(false);
 
   // Farcaster Mini App Integration
@@ -52,6 +53,7 @@ export default function Home() {
     setShowCharts(false);
     setResult(null);
     setChartData(null);
+    setUserData(null);
     setSearchValue("");
   };
 
@@ -131,21 +133,58 @@ export default function Home() {
             areaData: timeSeriesData,
             sources: sources
           });
+
+          // Fetch user data
+          try {
+            const usersResponse = await fetch(`/api/rest/app/${encodeURIComponent(searchValue.trim())}/users`, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            });
+
+            if (usersResponse.ok) {
+              const usersData = await usersResponse.json();
+              console.log('Full users response:', JSON.stringify(usersData, null, 2));
+              if (usersData.success && usersData.data) {
+                console.log('Users data length:', usersData.data.length);
+                console.log('Users data:', usersData.data);
+                setUserData(usersData.data);
+              } else {
+                console.log('Users response not successful or no data:', usersData);
+                setUserData([]);
+              }
+            } else {
+              console.error('Users API Error:', usersResponse.status);
+              const errorText = await usersResponse.text();
+              console.error('Error response:', errorText);
+              // Set empty array if user data fetch fails
+              setUserData([]);
+            }
+          } catch (userError) {
+            console.error('Users fetch error:', userError);
+            // Set empty array on error
+            setUserData([]);
+          }
+
           setShowCharts(true);
           console.log('Miniapp data:', data.data);
         } else {
           // No data found for this miniapp ID or empty response
           setResult("error");
           setChartData(null);
+          setUserData(null);
         }
       } else {
         console.error('API Error:', response.status, response.statusText);
         setResult("error");
+        setUserData(null);
       }
     } catch (error) {
       console.error('Search error:', error);
       setResult("error");
       setChartData(null);
+      setUserData(null);
     } finally {
       setIsLoading(false);
     }
@@ -187,6 +226,7 @@ export default function Home() {
               ) : (
                 <ChartsDisplay
                   chartData={chartData}
+                  userData={userData}
                   onBack={handleBack}
                 />
               )}

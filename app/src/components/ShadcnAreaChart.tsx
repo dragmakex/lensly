@@ -1,7 +1,7 @@
 "use client"
 
 import { TrendingUp } from "lucide-react";
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer, Legend } from "recharts";
 import type { AreaDataPoint } from "@/types/charts";
 
 interface ShadcnAreaChartProps {
@@ -78,6 +78,22 @@ export default function ShadcnAreaChart({
                     strokeWidth={2}
                   />
                 ))}
+                <Legend
+                  verticalAlign="bottom"
+                  height={40}
+                  wrapperStyle={{
+                    fontSize: '12px',
+                    color: 'rgba(255,255,255,0.8)',
+                    paddingTop: '35px',
+                    paddingBottom: '10px'
+                  }}
+                  formatter={(value: string) => (
+                    <span style={{ color: purpleColors[sources.indexOf(value)] || '#8B5CF6' }}>
+                      {value}
+                    </span>
+                  )}
+                  iconType="rect"
+                />
               </AreaChart>
             </ResponsiveContainer>
           ) : (
