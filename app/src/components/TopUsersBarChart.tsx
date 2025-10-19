@@ -2,11 +2,24 @@
 
 import { Users } from "lucide-react";
 import { Bar, BarChart, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
+import type { TopUser } from "@/types/charts";
+
+type ChartDataPoint = {
+  user: string;
+  visitors: number;
+  fill: string;
+  originalData: TopUser;
+};
+
+type CustomTooltipPayload = {
+  value?: number;
+  payload?: ChartDataPoint;
+};
 
 interface TopUsersBarChartProps {
   title: string;
   description: string;
-  data: Array<{ user_id: string; user_name: string; count: number }> | undefined;
+  data: TopUser[] | undefined;
 }
 
 export default function TopUsersBarChart({
@@ -24,7 +37,7 @@ export default function TopUsersBarChart({
   ];
 
   // Prepare chart data with fill colors
-  const chartData = data?.slice(0, 5).map((item, index) => ({
+  const chartData: ChartDataPoint[] = data?.slice(0, 5).map((item, index) => ({
     user: item.user_id === 'anonymous' ? 'Anonymous' :
           item.user_name.includes('User') && /^\d+$/.test(item.user_name.replace('User ', ''))
             ? `FID ${item.user_name.replace('User ', '')}` // Format as "FID 12345"
@@ -37,14 +50,14 @@ export default function TopUsersBarChart({
   })) || [];
 
   // Custom tooltip
-  const CustomTooltip = ({ active, payload }: any) => {
+  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: CustomTooltipPayload[] }) => {
     if (active && payload && payload.length) {
-      const data = payload[0];
-      const originalData = data?.payload?.originalData;
+      const tooltipEntry = payload[0];
+      const originalData = tooltipEntry?.payload?.originalData;
       return (
         <div className="liquid-glass rounded-lg px-3 py-2 text-white border border-white/30">
-          <p className="text-xs font-medium">{data.payload.user}</p>
-          <p className="text-xs opacity-80">{data.value} interactions</p>
+          <p className="text-xs font-medium">{tooltipEntry?.payload?.user}</p>
+          <p className="text-xs opacity-80">{tooltipEntry?.value} interactions</p>
           {originalData?.user_id && originalData.user_id !== 'anonymous' && (
             <p className="text-xs opacity-60">FID: {originalData.user_id}</p>
           )}
@@ -98,7 +111,6 @@ export default function TopUsersBarChart({
                 <Tooltip content={<CustomTooltip />} />
                 <Bar
                   dataKey="visitors"
-                  layout="vertical"
                   radius={5}
                   fill="#8B5CF6"
                 />
