@@ -60,12 +60,24 @@ The Entity Relations Diagram below is normalized to 3NF.
 ```mermaid
     erDiagram
     %% Entities
-    Sources {
-        id uuid PK
-        mini_app_id text
-        farcaster_id text
-        source_type enum
-        recorded_at timestamp
-    }
-    %% Relations
+  Users {
+    id uuid PK
+    username text
+    displayName text
+    pfpUrl text
+    farcaster_id text UK
+  }
+  Sources {
+    id uuid PK
+    miniapp_id text
+    source_type text
+    recorded_at timestamptz
+    features_haptics boolean
+    features_camera_and_microphone_access boolean
+    user_id uuid FK
+    client_miniapp_platform_type text
+    client_farcaster_id integer
+  }
+  %% Relations
+  Users ||--o{ Sources : "has events"
 ```
