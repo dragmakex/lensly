@@ -79,9 +79,9 @@ export default function ShadcnPieChart({
     const endY = numericCy + labelRadius * Math.sin(-midAngle * RADIAN);
 
     // Adjust text position slightly based on direction to ensure it's at the line end
-    let textX = endX;
-    const textY = endY;
-    let textAnchor = 'end';
+  let textX = endX;
+  const textY = endY;
+  let textAnchor: 'start' | 'end' = 'end';
 
     if (endX > numericCx) {
       // Text should be to the right of the line end

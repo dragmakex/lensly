@@ -84,7 +84,7 @@ export default function ChartsDisplay({ chartData, userData, onBack, searchType,
               <ShadcnPieChart
                 title="Client Type"
                 description="Base vs Farcaster access"
-                data={clientTypeData}
+                data={clientTypeData ?? undefined}
               />
             </motion.div>
 
@@ -98,7 +98,7 @@ export default function ChartsDisplay({ chartData, userData, onBack, searchType,
               <ShadcnPieChart
                 title="Platform Type"
                 description="Web vs Mobile usage"
-                data={platformTypeData}
+                data={platformTypeData ?? undefined}
               />
             </motion.div>
 

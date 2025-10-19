@@ -88,7 +88,7 @@ export default function TopUsersBarChart({
                   tickLine={false}
                   tickMargin={3}
                   axisLine={false}
-                  tick={{ fill: 'rgba(255,255,255,0.8)', fontSize: 14, pointerEvents: 'none', userSelect: 'none' }}
+                  tick={{ fill: 'rgba(255,255,255,0.8)', fontSize: 14, pointerEvents: 'none' }}
                   width={50}
                 />
                 <Bar
