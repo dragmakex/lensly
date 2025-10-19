@@ -67,6 +67,22 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://lensly.seraphim.zone",
   },
+  other: {
+    "fc:miniapp": JSON.stringify({
+      "version": "next",
+      "imageUrl": "https://lensly.seraphim.zone/og-image.png",
+      "button": {
+        "title": "View user and miniapp analytics",
+        "action": {
+          "type": "launch_frame",
+          "name": "LENSLY",
+          "url": "https://lensly.seraphim.zone",
+          "splashImageUrl": "https://lensly.seraphim.zone/logo.svg",
+          "splashBackgroundColor": "#000000"
+        }
+      }
+    })
+  }
 };
 
 export default function RootLayout({

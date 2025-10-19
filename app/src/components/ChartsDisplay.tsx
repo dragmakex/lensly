@@ -47,7 +47,7 @@ export default function ChartsDisplay({ chartData, userData, onBack }: ChartsDis
             <TopUsersBarChart
               title="Top Farcaster IDs"
               description="Most frequent FIDs by source data"
-              data={userData}
+              data={userData || undefined}
             />
           </motion.div>
 

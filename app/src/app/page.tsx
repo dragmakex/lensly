@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import sdk from "@farcaster/miniapp-sdk";
+import sdk, { type Context } from "@farcaster/miniapp-sdk";
 import LandingScreen from "@/components/LandingScreen";
 import LiquidGlassSearchBar from "@/components/LiquidGlassSearchBar";
 import ChartsDisplay from "@/components/ChartsDisplay";
@@ -23,17 +23,22 @@ export default function Home() {
   const [chartData, setChartData] = useState<ChartData | null>(null);
   const [userData, setUserData] = useState<Array<{ user_id: string; user_name: string; count: number }> | null>(null);
   const [showCharts, setShowCharts] = useState(false);
+  const [isSDKLoaded, setIsSDKLoaded] = useState(false);
+  const [context, setContext] = useState<Context.FrameContext>();
 
   // Farcaster Mini App Integration
   useEffect(() => {
     const load = async () => {
-      await sdk.context;
+      const frameContext = await sdk.context;
+      setContext(frameContext);
+      console.log("Farcaster Mini App Context:", frameContext);
       sdk.actions.ready();
     };
-    if (sdk) {
+    if (sdk && !isSDKLoaded) {
+      setIsSDKLoaded(true);
       load();
     }
-  }, []);
+  }, [isSDKLoaded]);
 
   // Auto transition after 3 seconds
   useEffect(() => {

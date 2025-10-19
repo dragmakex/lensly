@@ -1,7 +1,7 @@
 "use client";
 
 import { Users } from "lucide-react";
-import { Bar, BarChart, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
+import { Bar, BarChart, XAxis, YAxis, ResponsiveContainer } from "recharts";
 
 interface TopUsersBarChartProps {
   title: string;
@@ -36,23 +36,6 @@ export default function TopUsersBarChart({
     originalData: item // Keep original data for tooltip
   })) || [];
 
-  // Custom tooltip
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const data = payload[0];
-      const originalData = data?.payload?.originalData;
-      return (
-        <div className="liquid-glass rounded-lg px-3 py-2 text-white border border-white/30">
-          <p className="text-xs font-medium">{data.payload.user}</p>
-          <p className="text-xs opacity-80">{data.value} interactions</p>
-          {originalData?.user_id && originalData.user_id !== 'anonymous' && (
-            <p className="text-xs opacity-60">FID: {originalData.user_id}</p>
-          )}
-        </div>
-      );
-    }
-    return null;
-  };
 
   return (
     <div className="liquid-glass rounded-2xl p-4 sm:p-6 text-white relative overflow-hidden h-full flex flex-col">
@@ -95,10 +78,8 @@ export default function TopUsersBarChart({
                   axisLine={false}
                   tick={{ fill: 'rgba(255,255,255,0.8)', fontSize: 12 }}
                 />
-                <Tooltip content={<CustomTooltip />} />
                 <Bar
                   dataKey="visitors"
-                  layout="vertical"
                   radius={5}
                   fill="#8B5CF6"
                 />
