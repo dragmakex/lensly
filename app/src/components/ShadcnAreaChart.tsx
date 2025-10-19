@@ -80,12 +80,10 @@ export default function ShadcnAreaChart({
                 ))}
                 <Legend
                   verticalAlign="bottom"
-                  height={40}
+                  height={36}
                   wrapperStyle={{
                     fontSize: '12px',
-                    color: 'rgba(255,255,255,0.8)',
-                    paddingTop: '35px',
-                    paddingBottom: '10px'
+                    color: 'rgba(255,255,255,0.8)'
                   }}
                   formatter={(value: string) => (
                     <span style={{ color: purpleColors[sources.indexOf(value)] || '#8B5CF6' }}>

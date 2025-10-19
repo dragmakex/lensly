@@ -98,37 +98,46 @@ export default function Home() {
             percentage: Math.round((count / totalCount) * 100)
           }));
 
-          // Generate time series data for area chart (last 7 days)
+          // Generate real time series data from actual recorded_at timestamps
           const timeSeriesData: AreaDataPoint[] = [];
           const sources = Object.keys(sourceCounts);
 
-          for (let i = 6; i >= 0; i--) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          // Group sources by date from recorded_at timestamps
+          const dataByDate: Record<string, Record<string, number>> = {};
 
+          sourcesList.forEach((source) => {
+            if (source.source_type && source.recorded_at) {
+              const date = new Date(source.recorded_at);
+              const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+              if (!dataByDate[dateStr]) {
+                dataByDate[dateStr] = {};
+              }
+
+              dataByDate[dateStr][source.source_type] = (dataByDate[dateStr][source.source_type] || 0) + 1;
+            }
+          });
+
+          // Convert to area chart format and sort by date
+          const sortedDates = Object.keys(dataByDate).sort((a, b) => {
+            const dateA = new Date(a);
+            const dateB = new Date(b);
+            return dateA.getTime() - dateB.getTime();
+          });
+
+          // Take last 7 days of data and reverse (oldest last/right)
+          const last7Days = sortedDates.slice(-7).reverse();
+
+          last7Days.forEach(dateStr => {
+            const dayData = dataByDate[dateStr];
             const dataPoint: AreaDataPoint = { date: dateStr };
-            sources.forEach(source => {
-              // Generate realistic percentage data that sums to 100%
-              const basePercentage = (sourceCounts[source] / totalCount) * 100;
-              const variation = (Math.random() - 0.5) * 20; // ±10% variation
-              dataPoint[source] = Math.max(5, Math.min(95, basePercentage + variation));
-            });
 
-            // Normalize to ensure percentages sum to 100
-            const total = sources.reduce((sum, source) => {
-              const rawValue = dataPoint[source];
-              const numericValue = typeof rawValue === 'number' ? rawValue : Number(rawValue);
-              return Number.isFinite(numericValue) ? sum + numericValue : sum;
-            }, 0);
             sources.forEach(source => {
-              const rawValue = dataPoint[source];
-              const numericValue = typeof rawValue === 'number' ? rawValue : Number(rawValue);
-              dataPoint[source] = total > 0 ? Math.round((numericValue / total) * 100) : 0;
+              dataPoint[source] = dayData[source] || 0;
             });
 
             timeSeriesData.push(dataPoint);
-          }
+          });
 
           setChartData({
             pieData: aggregatedData,
@@ -211,8 +220,8 @@ export default function Home() {
         {currentScreen === "search" && (
           <motion.div
             key="search"
-            initial={{ opacity: 0, scale: 0.3 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="absolute inset-0 z-20 w-full h-full overflow-hidden"
           >
