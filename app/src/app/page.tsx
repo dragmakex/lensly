@@ -62,11 +62,14 @@ export default function Home() {
   const handleSearch = async () => {
     if (!searchValue.trim()) return;
 
+    // Sanitize search input: lowercase and remove all whitespaces
+    const sanitizedValue = searchValue.trim().toLowerCase().replace(/\s+/g, '');
+
     setIsLoading(true);
     setResult(null);
 
     try {
-  const response = await fetch(`/api/rest/app/${encodeURIComponent(searchValue.trim())}`, {
+  const response = await fetch(`/api/rest/app/${encodeURIComponent(sanitizedValue)}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -147,7 +150,7 @@ export default function Home() {
 
           // Fetch user data
           try {
-            const usersResponse = await fetch(`/api/rest/app/${encodeURIComponent(searchValue.trim())}/users`, {
+            const usersResponse = await fetch(`/api/rest/app/${encodeURIComponent(sanitizedValue)}/users`, {
               method: 'GET',
               headers: {
                 'Content-Type': 'application/json',
