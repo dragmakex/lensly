@@ -17,7 +17,13 @@ Check it out [here](https://farcaster.xyz/~/mini-apps/launch?domain=lensly.serap
 - [Infra](./infra/): contains lensly infrastructure.
 - [Docs](./docs/): features product, engineering, guides, and design documentation.
 
-## System Architecture & Tech Stack
+## Product Overview
+
+Lensly is an analytics platform for Farcaster applications in the Base ecosystem providing developers with rich usage metrics and customer profiling.
+
+More information can be found in the [product documentation](./docs/product.md).
+
+## Engineering Overview
 
 The diagarm below provides a simplified overview about the key components of the analytics platform:
 ```mermaid
