@@ -12,44 +12,46 @@
 
 ```mermaid
 flowchart LR
-Dashboard[Dashboard]
-EdgeServer[Edge Server]
+LenslyApp[Lensly App]
+EdgeAPI[Edge API]
 Database[Database]
 MiniApp[Mini App]
-SDK[SDK]
+LenslySDK[Lensly SDK]
 User[User]
 
-User --"uses"--> Dashboard
-Dashboard --"fetches data"--> EdgeServer
-EdgeServer --"fetches data"--> Database
-
+User --"uses"--> LenslyApp
+LenslyApp --"fetches data"--> EdgeAPI
+EdgeAPI --"read & write"--> Database
 User --"uses"--> MiniApp
-MiniApp --"contains"--> SDK
-SDK --"posts data"-->Database
+MiniApp --"contains"--> LenslySDK
+LenslySDK --"posts data"-->EdgeAPI
 ```
 
 ## Requirements
 
-- The SDK shall be compatible with mini apps.
-- The SDK shall post context data to the database.
+- The lensly sdk shall be compatible with farcaster apps.
+- The lensly sdk shall post context data to the database.
 - The database shall be able to receive and store all contet data of the sdk.
-- The edge server shall cache requests by the dashboard.
-- The edge server shall fetch app context from the database.
-- The dashboard shall be accessible via Web.
-- The dashboard shall be accessible via Farcaster.
-- The dashboards shall be usable on all common devices.
-- The dashboard shall feature a search bar for farcaster ids.
+- The edge api shall cache requests by the dashboard.
+- The edge api shall fetch app context from the database.
+- The edge api shall expose get and post endpoints to the lensly app
+- The lensly app shall be accessible via Web.
+- The lensly app shall be accessible via Farcaster.
+- The lensly app shall be accessible via Base.
+- The lensly app shall be usable on all common devices.
+- The lensly app shall feature a search bar for mini app and farcaster ids.
+- The lensly app shall provide metrics about farcaster mini apps and users.
 
 ## Tech Stack
 
-| Component     | Technology                                               |
-| ------------- | -------------------------------------------------------- |
-| Dashboard     | Typescript; Next.js; React.js; Tailwind; Vercel; ShadCN; |
-| Edge Server   | Hasura; Caddy;                                           |
-| Database      | Postgres;                                                |
-| SDK           | Typescript;                                              |
-| MiniApp       | Typescript;                                              |
-| Orchestration | Docker;                                                  |
+| Component     | Technology                                                 |
+| ------------- | ---------------------------------------------------------- |
+| Lensly App    | Typescript; Next.js; React.js; Tailwind; ShadCN; HTML, CSS |
+| Lensly SDK    | Typescript;                                                |
+| Edge API      | Hasura; Caddy;                                             |
+| Database      | Postgres;                                                  |
+| Orchestration | Docker; Vercel, GitHub                                     |
+| Toolings      | Husky; Mise; EsLint; CommitLint, GitHub Action, NPM        |
 
 ## Database
 

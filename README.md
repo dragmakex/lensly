@@ -15,7 +15,7 @@ Check it out [here](https://farcaster.xyz/~/mini-apps/launch?domain=lensly.serap
 - [Lensly App](./app/): contains the lensly app.
 - [Lensly SDK](./packages/lensly/): contains the lensly sdk package.
 - [Infra](./infra/): contains lensly infrastructure.
-- [Docs](./docs/): features product, engineering, and design documentation.
+- [Docs](./docs/): features product, engineering, guides, and design documentation.
 
 ---
 
