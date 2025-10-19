@@ -1,7 +1,7 @@
 // src/Analytics.tsx
 import { useEffect, useRef } from "react";
 import { Fragment, jsx } from "react/jsx-runtime";
-var DEFAULT_ENDPOINT = "https://api-slop.seraphim.zone/api/rest/insert";
+var DEFAULT_ENDPOINT = "https://api-slop.seraphim.zone/api/rest/insert-next";
 var FALLBACK_SOURCE_TYPE = "website";
 var log = (...messages) => {
   if (typeof console === "undefined") {
@@ -20,19 +20,52 @@ var pickFetch = (override) => {
   return void 0;
 };
 var buildPayload = (miniappId, context) => {
-  const rawSourceType = context?.location?.type;
+  const rawSourceType = context?.location?.type ?? null;
   const sourceType = rawSourceType ?? FALLBACK_SOURCE_TYPE;
   const fidValue = context?.user?.fid;
-  const farcasterId = fidValue != null ? String(fidValue) : "";
-  return {
-    payload: {
-      miniappId,
-      sourceType,
-      farcasterId
+  const farcasterId = fidValue != null ? String(fidValue) : null;
+  const userData = farcasterId ? {
+    data: {
+      farcaster_id: farcasterId,
+      ...context?.user?.username ? { username: context.user.username } : {},
+      ...context?.user?.displayName ? { displayName: context.user.displayName } : {},
+      ...context?.user?.pfpUrl ? { pfpUrl: context.user.pfpUrl } : {}
     },
+    on_conflict: {
+      constraint: "users_farcaster_id_key",
+      update_columns: ["username", "displayName", "pfpUrl"]
+    }
+  } : null;
+  const featuresHaptics = context?.features?.haptics;
+  const featuresCameraAndMic = context?.features?.cameraAndMicrophoneAccess;
+  const clientPlatformType = context?.client?.platformType;
+  const clientFarcasterId = context?.client?.clientFid;
+  const payload = {
+    miniappId,
+    sourceType,
+    farcasterId: farcasterId ?? ""
+  };
+  if (featuresHaptics !== void 0) {
+    payload.featuresHaptics = featuresHaptics;
+  }
+  if (featuresCameraAndMic !== void 0) {
+    payload.featuresCameraAndMic = featuresCameraAndMic;
+  }
+  if (clientPlatformType) {
+    payload.clientPlatformType = clientPlatformType;
+  }
+  if (clientFarcasterId != null) {
+    payload.clientFarcasterId = clientFarcasterId;
+  }
+  if (userData) {
+    payload.user = userData;
+  }
+  return {
+    payload,
     meta: {
-      rawSourceType: rawSourceType ?? null,
-      usedFallback: rawSourceType == null
+      rawSourceType,
+      usedFallback: rawSourceType == null,
+      hasFid: Boolean(farcasterId)
     }
   };
 };
@@ -55,8 +88,16 @@ var Analytics = ({
       hasSent: hasSentRef.current,
       location: meta.rawSourceType,
       resolvedSource: payload.sourceType,
-      hasFid: Boolean(payload.farcasterId)
+      hasFid: meta.hasFid,
+      featuresHaptics: payload.featuresHaptics,
+      featuresCameraAndMic: payload.featuresCameraAndMic,
+      clientPlatformType: payload.clientPlatformType,
+      clientFarcasterId: payload.clientFarcasterId
     });
+    if (!meta.hasFid) {
+      log("skipping analytics send until farcaster fid is available");
+      return;
+    }
     if (hasSentRef.current) {
       log("skipping send because event already dispatched");
       return;
@@ -73,9 +114,6 @@ var Analytics = ({
         fallback: payload.sourceType,
         original: meta.rawSourceType
       });
-    }
-    if (!payload.farcasterId) {
-      log("farcaster fid missing; sending anonymous marker");
     }
     log("submitting analytics payload", payload);
     fetchFn(endpoint, {

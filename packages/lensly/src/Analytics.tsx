@@ -1,8 +1,30 @@
 import { useEffect, useRef } from 'react';
 import type { AnalyticsProps, MiniAppContext } from './types';
 
-const DEFAULT_ENDPOINT = 'https://api-slop.seraphim.zone/api/rest/insert';
+const DEFAULT_ENDPOINT = 'https://api-slop.seraphim.zone/api/rest/insert-next';
 const FALLBACK_SOURCE_TYPE = 'website';
+
+type InsertNextPayload = {
+  miniappId: string;
+  sourceType: string;
+  farcasterId: string;
+  featuresHaptics?: boolean;
+  featuresCameraAndMic?: boolean;
+  clientPlatformType?: string;
+  clientFarcasterId?: number;
+  user?: {
+    data: {
+      farcaster_id: string;
+      username?: string;
+      displayName?: string;
+      pfpUrl?: string;
+    };
+    on_conflict: {
+      constraint: 'users_farcaster_id_key';
+      update_columns: ReadonlyArray<'username' | 'displayName' | 'pfpUrl'>;
+    };
+  };
+};
 
 const log = (...messages: unknown[]) => {
   if (typeof console === 'undefined') {
@@ -24,21 +46,65 @@ const pickFetch = (override?: typeof fetch) => {
 };
 
 const buildPayload = (miniappId: string, context?: MiniAppContext | null) => {
-  const rawSourceType = context?.location?.type;
+  const rawSourceType = context?.location?.type ?? null;
   const sourceType = rawSourceType ?? FALLBACK_SOURCE_TYPE;
 
   const fidValue = context?.user?.fid;
-  const farcasterId = fidValue != null ? String(fidValue) : '';
+  const farcasterId = fidValue != null ? String(fidValue) : null;
+
+  const userData = farcasterId
+    ? {
+        data: {
+          farcaster_id: farcasterId,
+          ...(context?.user?.username ? { username: context.user.username } : {}),
+          ...(context?.user?.displayName ? { displayName: context.user.displayName } : {}),
+          ...(context?.user?.pfpUrl ? { pfpUrl: context.user.pfpUrl } : {})
+        },
+        on_conflict: {
+          constraint: 'users_farcaster_id_key' as const,
+          update_columns: ['username', 'displayName', 'pfpUrl'] as const
+        }
+      }
+    : null;
+
+  const featuresHaptics = context?.features?.haptics;
+  const featuresCameraAndMic = context?.features?.cameraAndMicrophoneAccess;
+
+  const clientPlatformType = context?.client?.platformType;
+  const clientFarcasterId = context?.client?.clientFid;
+
+  const payload: InsertNextPayload = {
+    miniappId,
+    sourceType,
+    farcasterId: farcasterId ?? ''
+  };
+
+  if (featuresHaptics !== undefined) {
+    payload.featuresHaptics = featuresHaptics;
+  }
+
+  if (featuresCameraAndMic !== undefined) {
+    payload.featuresCameraAndMic = featuresCameraAndMic;
+  }
+
+  if (clientPlatformType) {
+    payload.clientPlatformType = clientPlatformType;
+  }
+
+  if (clientFarcasterId != null) {
+    payload.clientFarcasterId = clientFarcasterId;
+  }
+
+  if (userData) {
+    payload.user = userData;
+  }
 
   return {
-    payload: {
-      miniappId,
-      sourceType,
-      farcasterId
-    },
+    payload,
     meta: {
-      rawSourceType: rawSourceType ?? null,
-      usedFallback: rawSourceType == null
+      rawSourceType,
+      usedFallback: rawSourceType == null,
+      hasFid: Boolean(farcasterId)
     }
   };
 };
@@ -65,8 +131,17 @@ export const Analytics = ({
       hasSent: hasSentRef.current,
       location: meta.rawSourceType,
       resolvedSource: payload.sourceType,
-  hasFid: Boolean(payload.farcasterId)
+      hasFid: meta.hasFid,
+      featuresHaptics: payload.featuresHaptics,
+      featuresCameraAndMic: payload.featuresCameraAndMic,
+      clientPlatformType: payload.clientPlatformType,
+      clientFarcasterId: payload.clientFarcasterId
     });
+
+    if (!meta.hasFid) {
+      log('skipping analytics send until farcaster fid is available');
+      return;
+    }
 
     if (hasSentRef.current) {
       log('skipping send because event already dispatched');
@@ -87,10 +162,6 @@ export const Analytics = ({
         fallback: payload.sourceType,
         original: meta.rawSourceType
       });
-    }
-
-    if (!payload.farcasterId) {
-      log('farcaster fid missing; sending anonymous marker');
     }
 
     log('submitting analytics payload', payload);
