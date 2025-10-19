@@ -10,13 +10,6 @@
 
 Check it out [here](https://farcaster.xyz/~/mini-apps/launch?domain=lensly.seraphim.zone)!
 
-## Repository Structure
-
-- [Lensly App](./app/): contains the lensly app.
-- [Lensly SDK](./packages/lensly/): contains the lensly sdk package.
-- [Infra](./infra/): contains lensly infrastructure.
-- [Docs](./docs/): features product, engineering, guides, and design documentation.
-
 ## Product Overview
 
 Lensly is an analytics platform for Farcaster applications in the Base ecosystem providing developers with rich usage metrics and customer profiling.
@@ -79,6 +72,13 @@ export function Root({ children }: { children: React.ReactNode }) {
 
 For more information check out our [integration guide](./docs/docs/developer-guide.md).
 
+## Repository Structure
+
+- [Lensly App](./app/): contains the lensly app.
+- [Lensly SDK](./packages/lensly/): contains the lensly sdk package.
+- [Infra](./infra/): contains lensly infrastructure.
+- [Docs](./docs/): features product, engineering, guides, and design documentation.
+  
 ## Important Links
 
 - [Demo](https://youtube.com/shorts/l37PzlkKhU0)
