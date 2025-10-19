@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import ShadcnPieChart from "./ShadcnPieChart";
 import ShadcnAreaChart from "./ShadcnAreaChart";
 import TopUsersBarChart from "./TopUsersBarChart";
@@ -17,9 +18,9 @@ interface ChartsDisplayProps {
 export default function ChartsDisplay({ chartData, userData, onBack }: ChartsDisplayProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.3, y: 50 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.3, y: -50 }}
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -50 }}
       transition={{
         duration: 1.2,
         ease: [0.25, 0.46, 0.45, 0.94]
@@ -42,7 +43,7 @@ export default function ChartsDisplay({ chartData, userData, onBack }: ChartsDis
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="w-[320px] h-[400px] flex-shrink-0"
+            className="w-[320px] h-[450px] flex-shrink-0"
           >
             <TopUsersBarChart
               title="Top Farcaster IDs"
@@ -56,7 +57,7 @@ export default function ChartsDisplay({ chartData, userData, onBack }: ChartsDis
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
-            className="w-[320px] h-[400px] flex-shrink-0"
+            className="w-[320px] h-[480px] flex-shrink-0"
           >
             <ShadcnPieChart
               title="Source Distribution"
@@ -70,7 +71,7 @@ export default function ChartsDisplay({ chartData, userData, onBack }: ChartsDis
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.7 }}
-            className="w-[320px] h-[400px] flex-shrink-0"
+            className="w-[320px] h-[550px] flex-shrink-0"
           >
             <ShadcnAreaChart
               title="Source Trends"
