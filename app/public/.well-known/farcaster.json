@@ -1,0 +1,16 @@
+{
+  "accountAssociation": {
+    "header": "eyJmaWQiOjM1ODkzOSwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweGFCZENGYjIxNUQyYTBiYkEzMmMyQjRBOEMzOEFGZjQyMDVmQUYzRDgifQ",
+    "payload": "eyJkb21haW4iOiJsZW5zbHkuc2VyYXBoaW0uem9uZSJ9",
+    "signature": "55BDBoQEDIuN7XvckKq12btDHEHrC0OQmVRQhBmmxFhrWvvGt3uQlGpjEzlifhIOSlOY3k6Jz078qhfR7zb3HRw="
+    },
+    "frame": {
+    "name": "LENSLY",
+    "version": "0.1.0",
+    "iconUrl": "https://lensly.seraphim.zone/logo.svg",
+    "homeUrl": "https://lensly.seraphim.zone",
+    "splashImageUrl": "https://lensly.seraphim.zone/logo.svg",
+    "splashBackgroundColor": "#000000",
+    "webhookUrl": "https://lensly.seraphim.zone/api/webhook"
+  }
+}

@@ -6,6 +6,15 @@ type RouteContext = {
   params: Promise<{ miniappId: string }> | { miniappId: string };
 };
 
+interface UserData {
+  farcaster_id: string;
+  usage_count: number;
+}
+
+interface ApiResponse {
+  sources_usage: UserData[];
+}
+
 export async function GET(
   request: NextRequest,
   context: RouteContext
@@ -35,7 +44,7 @@ export async function GET(
       throw new Error(`API request failed: ${response.status} ${response.statusText}`);
     }
 
-    const userData = await response.json();
+    const userData: ApiResponse = await response.json();
     console.log(`Top Users API Response Data:`, JSON.stringify(userData, null, 2));
 
     // Process the user data - the structure is sources_usage with farcaster_id and usage_count

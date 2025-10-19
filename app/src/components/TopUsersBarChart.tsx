@@ -108,7 +108,6 @@ export default function TopUsersBarChart({
                   axisLine={false}
                   tick={{ fill: 'rgba(255,255,255,0.8)', fontSize: 12 }}
                 />
-                <Tooltip content={<CustomTooltip />} />
                 <Bar
                   dataKey="visitors"
                   radius={5}
