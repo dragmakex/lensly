@@ -48,13 +48,22 @@ export async function GET(
     console.log(`Top Users API Response Data:`, JSON.stringify(userData, null, 2));
 
     // Process the user data - the structure is sources_usage with farcaster_id and usage_count
-    const processedUsers = Array.isArray(userData?.sources_usage) ? userData.sources_usage
-      .filter((user: UserData) => user.farcaster_id && user.farcaster_id !== null && user.farcaster_id !== '')
-      .map((user: UserData) => ({
-        user_id: user.farcaster_id,
+    type UsageEntry = {
+      farcaster_id: string | number | null | undefined;
+      usage_count: number | null | undefined;
+    };
+
+    const sourcesUsage = Array.isArray(userData?.sources_usage)
+      ? (userData.sources_usage as UsageEntry[])
+      : [];
+
+    const processedUsers = sourcesUsage
+      .filter((user) => user.farcaster_id != null && user.farcaster_id !== '')
+      .map((user) => ({
+        user_id: String(user.farcaster_id),
         user_name: `User ${user.farcaster_id}`,
-        count: user.usage_count || 0
-      })) : [];
+        count: user.usage_count ?? 0
+      }));
 
     // Sort by count (descending) and get top 5
     const topUsers = processedUsers

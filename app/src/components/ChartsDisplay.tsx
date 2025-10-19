@@ -7,11 +7,11 @@ import ShadcnAreaChart from "./ShadcnAreaChart";
 import TopUsersBarChart from "./TopUsersBarChart";
 import LiquidGlassButton from "./LiquidGlassButton";
 import { ArrowLeft } from "lucide-react";
-import type { ChartData } from "@/types/charts";
+import type { ChartData, TopUser } from "@/types/charts";
 
 interface ChartsDisplayProps {
   chartData: ChartData | null;
-  userData: Array<{ user_id: string; user_name: string; count: number }> | null;
+  userData: TopUser[] | null;
   onBack: () => void;
 }
 
@@ -48,7 +48,7 @@ export default function ChartsDisplay({ chartData, userData, onBack }: ChartsDis
             <TopUsersBarChart
               title="Top Farcaster IDs"
               description="Most frequent FIDs by source data"
-              data={userData || undefined}
+              data={userData ?? undefined}
             />
           </motion.div>
 

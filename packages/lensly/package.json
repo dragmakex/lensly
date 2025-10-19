@@ -1,6 +1,6 @@
 {
   "name": "@sen-com/lensly",
-  "version": "0.1.0",
+  "version": "0.2.3",
   "description": "Farcaster Mini App Analytics SDK",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -21,7 +21,7 @@
     "@farcaster/miniapp-sdk": "^0.2.1"
   },
   "peerDependencies": {
-    "@farcaster/miniapp-sdk": "^0.2.0",
+    "@farcaster/miniapp-sdk": "^0.2.1",
     "react": ">=18"
   },
   "devDependencies": {

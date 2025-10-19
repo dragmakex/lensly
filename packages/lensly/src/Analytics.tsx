@@ -24,8 +24,8 @@ const pickFetch = (override?: typeof fetch) => {
 };
 
 const buildPayload = (miniappId: string, context?: MiniAppContext | null) => {
-  const rawSourceType = context?.location?.type ?? null;
-  const sourceType = rawSourceType ? rawSourceType : FALLBACK_SOURCE_TYPE;
+  const rawSourceType = context?.location?.type;
+  const sourceType = rawSourceType ?? FALLBACK_SOURCE_TYPE;
 
   const fidValue = context?.user?.fid;
   const farcasterId = fidValue != null ? String(fidValue) : '';
@@ -37,8 +37,8 @@ const buildPayload = (miniappId: string, context?: MiniAppContext | null) => {
       farcasterId
     },
     meta: {
-      rawSourceType,
-      usedFallback: sourceType === FALLBACK_SOURCE_TYPE && rawSourceType !== FALLBACK_SOURCE_TYPE
+      rawSourceType: rawSourceType ?? null,
+      usedFallback: rawSourceType == null
     }
   };
 };
