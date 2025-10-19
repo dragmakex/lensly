@@ -5,60 +5,10 @@
     "version": ""
   },
   "paths": {
-    "/api/rest/number-of-users": {
-      "get": {
-        "summary": "number_of_users",
-        "description": "***\nThe GraphQl query for this endpoint is:\n``` graphql\nquery number_of_users {\n  sources_aggregate {\n    aggregate {\n      count(columns: farcaster_id, distinct: true)\n    }\n  }\n}\n```",
-        "parameters": [
-          {
-            "description": "Your x-hasura-admin-secret will be used for authentication of the API request.",
-            "in": "header",
-            "name": "x-hasura-admin-secret",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "sources_aggregate": {
-                      "description": "aggregated selection of \"sources\"",
-                      "nullable": false,
-                      "properties": {
-                        "aggregate": {
-                          "description": "aggregate fields of \"sources\"",
-                          "nullable": true,
-                          "properties": {
-                            "count": {
-                              "nullable": false,
-                              "title": "Int",
-                              "type": "integer"
-                            }
-                          },
-                          "title": "sources_aggregate_fields",
-                          "type": "object"
-                        }
-                      },
-                      "title": "sources_aggregate",
-                      "type": "object"
-                    }
-                  }
-                }
-              }
-            },
-            "description": "Responses for GET /api/rest/number-of-users"
-          }
-        }
-      }
-    },
-    "/api/rest/insert": {
+    "/api/rest/insert-next": {
       "post": {
         "summary": "insert",
-        "description": "***\nThe GraphQl query for this endpoint is:\n``` graphql\nmutation insert(\n  $miniappId: String!\n  $sourceType: String!\n  $farcasterId: String!\n) {\n  insert_sources_one (\n    object: {\n      miniapp_id: $miniappId\n      source_type: $sourceType\n      farcaster_id: $farcasterId\n    }\n  ) {\n      recorded_at\n  }\n}\n```",
+        "description": "***\nThe GraphQl query for this endpoint is:\n``` graphql\nmutation insert($miniappId: String!, $sourceType: String!, $featuresHaptics: Boolean, $featuresCameraAndMic: Boolean, $clientPlatformType: String, $clientFarcasterId: Int, $user: users_obj_rel_insert_input!) {\n  insert_sources_one(object: {miniapp_id: $miniappId, source_type: $sourceType, features_haptics: $featuresHaptics, features_camera_and_microphone_access: $featuresCameraAndMic, client_miniapp_platform_type: $clientPlatformType, client_farcaster_id: $clientFarcasterId, user: $user}) {\n    recorded_at\n    features_haptics\n    features_camera_and_microphone_access\n    client_miniapp_platform_type\n    client_farcaster_id\n    user_id\n    user {\n      farcaster_id\n      username\n      displayName\n      pfpUrl\n    }\n  }\n}\n```",
         "parameters": [
           {
             "description": "Your x-hasura-admin-secret will be used for authentication of the API request.",
@@ -69,12 +19,35 @@
             }
           },
           {
-            "description": "_\"farcasterId\" is required (enter it either in parameters or request body)_",
             "in": "query",
-            "name": "farcasterId",
-            "required": true,
+            "name": "clientFarcasterId",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "clientPlatformType",
+            "required": false,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "featuresCameraAndMic",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "featuresHaptics",
+            "required": false,
+            "schema": {
+              "type": "boolean"
             }
           },
           {
@@ -101,10 +74,25 @@
             "application/json": {
               "schema": {
                 "properties": {
-                  "farcasterId": {
-                    "nullable": false,
+                  "clientFarcasterId": {
+                    "nullable": true,
+                    "title": "Int",
+                    "type": "integer"
+                  },
+                  "clientPlatformType": {
+                    "nullable": true,
                     "title": "String",
                     "type": "string"
+                  },
+                  "featuresCameraAndMic": {
+                    "nullable": true,
+                    "title": "Boolean",
+                    "type": "boolean"
+                  },
+                  "featuresHaptics": {
+                    "nullable": true,
+                    "title": "Boolean",
+                    "type": "boolean"
                   },
                   "miniappId": {
                     "nullable": false,
@@ -115,6 +103,9 @@
                     "nullable": false,
                     "title": "String",
                     "type": "string"
+                  },
+                  "user": {
+                    "$ref": "#/components/schemas/users_obj_rel_insert_input!"
                   }
                 },
                 "type": "object"
@@ -122,7 +113,7 @@
             }
           },
           "description": "Query parameters can also be provided in the request body as a JSON object",
-          "required": false
+          "required": true
         },
         "responses": {
           "200": {
@@ -134,8 +125,59 @@
                       "description": "columns and relationships of \"sources\"",
                       "nullable": true,
                       "properties": {
+                        "client_farcaster_id": {
+                          "nullable": true,
+                          "title": "Int",
+                          "type": "integer"
+                        },
+                        "client_miniapp_platform_type": {
+                          "nullable": true,
+                          "title": "String",
+                          "type": "string"
+                        },
+                        "features_camera_and_microphone_access": {
+                          "nullable": true,
+                          "title": "Boolean",
+                          "type": "boolean"
+                        },
+                        "features_haptics": {
+                          "nullable": true,
+                          "title": "Boolean",
+                          "type": "boolean"
+                        },
                         "recorded_at": {
                           "$ref": "#/components/schemas/timestamptz!"
+                        },
+                        "user": {
+                          "description": "columns and relationships of \"users\"",
+                          "nullable": true,
+                          "properties": {
+                            "displayName": {
+                              "nullable": true,
+                              "title": "String",
+                              "type": "string"
+                            },
+                            "farcaster_id": {
+                              "nullable": true,
+                              "title": "String",
+                              "type": "string"
+                            },
+                            "pfpUrl": {
+                              "nullable": true,
+                              "title": "String",
+                              "type": "string"
+                            },
+                            "username": {
+                              "nullable": true,
+                              "title": "String",
+                              "type": "string"
+                            }
+                          },
+                          "title": "users",
+                          "type": "object"
+                        },
+                        "user_id": {
+                          "$ref": "#/components/schemas/uuid"
                         }
                       },
                       "title": "sources",
@@ -145,7 +187,7 @@
                 }
               }
             },
-            "description": "Responses for POST /api/rest/insert"
+            "description": "Responses for POST /api/rest/insert-next"
           }
         }
       }
@@ -153,7 +195,7 @@
     "/api/rest/top-users/{miniappId}": {
       "get": {
         "summary": "top_users",
-        "description": "***\nThe GraphQl query for this endpoint is:\n``` graphql\nquery top_users($miniappId: String!, $limit: Int = 10) {\n  sources_usage(where: {miniapp_id: {_eq: $miniappId}}, order_by: {usage_count: desc}, limit: $limit) {\n    farcaster_id\n    usage_count\n  }\n}\n```",
+        "description": "***\nThe GraphQl query for this endpoint is:\n``` graphql\nquery top_users($miniappId: String!, $limit: Int! = 10, $offset: Int! = 0) {\n  users(where: {sources: {miniapp_id: {_eq: $miniappId}}}, order_by: {sources_aggregate: {count: desc}}, limit: $limit, offset: $offset) {\n    farcaster_id\n    username\n    displayName\n    pfpUrl\n    sources_aggregate(where: {miniapp_id: {_eq: $miniappId}}) {\n      aggregate {\n        count\n      }\n    }\n  }\n}\n```",
         "parameters": [
           {
             "description": "Your x-hasura-admin-secret will be used for authentication of the API request.",
@@ -180,6 +222,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "type": "integer"
+            }
           }
         ],
         "responses": {
@@ -188,21 +239,54 @@
               "application/json": {
                 "schema": {
                   "properties": {
-                    "sources_usage": {
+                    "users": {
                       "items": {
-                        "description": "columns and relationships of \"sources_usage\"",
+                        "description": "columns and relationships of \"users\"",
                         "nullable": false,
                         "properties": {
+                          "displayName": {
+                            "nullable": true,
+                            "title": "String",
+                            "type": "string"
+                          },
                           "farcaster_id": {
                             "nullable": true,
                             "title": "String",
                             "type": "string"
                           },
-                          "usage_count": {
-                            "$ref": "#/components/schemas/bigint"
+                          "pfpUrl": {
+                            "nullable": true,
+                            "title": "String",
+                            "type": "string"
+                          },
+                          "sources_aggregate": {
+                            "description": "aggregated selection of \"sources\"",
+                            "nullable": false,
+                            "properties": {
+                              "aggregate": {
+                                "description": "aggregate fields of \"sources\"",
+                                "nullable": true,
+                                "properties": {
+                                  "count": {
+                                    "nullable": false,
+                                    "title": "Int",
+                                    "type": "integer"
+                                  }
+                                },
+                                "title": "sources_aggregate_fields",
+                                "type": "object"
+                              }
+                            },
+                            "title": "sources_aggregate",
+                            "type": "object"
+                          },
+                          "username": {
+                            "nullable": true,
+                            "title": "String",
+                            "type": "string"
                           }
                         },
-                        "title": "sources_usage",
+                        "title": "users",
                         "type": "object"
                       },
                       "nullable": false,
@@ -217,60 +301,10 @@
         }
       }
     },
-    "/api/rest/number-of-miniapps": {
-      "get": {
-        "summary": "number_of_miniapps",
-        "description": "***\nThe GraphQl query for this endpoint is:\n``` graphql\nquery number_of_miniapps {\n  sources_aggregate {\n    aggregate {\n      count(columns: miniapp_id, distinct: true)\n    }\n  }\n}\n```",
-        "parameters": [
-          {
-            "description": "Your x-hasura-admin-secret will be used for authentication of the API request.",
-            "in": "header",
-            "name": "x-hasura-admin-secret",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "sources_aggregate": {
-                      "description": "aggregated selection of \"sources\"",
-                      "nullable": false,
-                      "properties": {
-                        "aggregate": {
-                          "description": "aggregate fields of \"sources\"",
-                          "nullable": true,
-                          "properties": {
-                            "count": {
-                              "nullable": false,
-                              "title": "Int",
-                              "type": "integer"
-                            }
-                          },
-                          "title": "sources_aggregate_fields",
-                          "type": "object"
-                        }
-                      },
-                      "title": "sources_aggregate",
-                      "type": "object"
-                    }
-                  }
-                }
-              }
-            },
-            "description": "Responses for GET /api/rest/number-of-miniapps"
-          }
-        }
-      }
-    },
     "/api/rest/user/{farcasterId}": {
       "get": {
         "summary": "user",
-        "description": "***\nThe GraphQl query for this endpoint is:\n``` graphql\nquery app($farcasterId: String!, $limit: Int! = 100, $offset: Int! = 0) {\n  sources(where: {farcaster_id: {_eq: $farcasterId}}, order_by: {recorded_at: desc}, limit: $limit, offset: $offset) {\n    miniapp_id\n    source_type\n    recorded_at\n  }\n}\n```",
+        "description": "***\nThe GraphQl query for this endpoint is:\n``` graphql\nquery user($farcasterId: String!, $limit: Int! = 25, $offset: Int! = 0) {\n  users(where: {farcaster_id: {_eq: $farcasterId}}, limit: 1) {\n    farcaster_id\n    username\n    displayName\n    pfpUrl\n    sources(order_by: {recorded_at: desc}, limit: $limit, offset: $offset) {\n      miniapp_id\n      source_type\n      recorded_at\n      features_haptics\n      features_camera_and_microphone_access\n      client_miniapp_platform_type\n      client_farcaster_id\n    }\n    sourcesAggregate: sources_aggregate {\n      aggregate {\n        count\n      }\n    }\n  }\n}\n```",
         "parameters": [
           {
             "description": "Your x-hasura-admin-secret will be used for authentication of the API request.",
@@ -294,7 +328,7 @@
             "name": "limit",
             "required": false,
             "schema": {
-              "default": 100,
+              "default": 25,
               "type": "integer"
             }
           },
@@ -314,26 +348,99 @@
               "application/json": {
                 "schema": {
                   "properties": {
-                    "sources": {
+                    "users": {
                       "items": {
-                        "description": "columns and relationships of \"sources\"",
+                        "description": "columns and relationships of \"users\"",
                         "nullable": false,
                         "properties": {
-                          "miniapp_id": {
-                            "nullable": false,
+                          "displayName": {
+                            "nullable": true,
                             "title": "String",
                             "type": "string"
                           },
-                          "recorded_at": {
-                            "$ref": "#/components/schemas/timestamptz!"
+                          "farcaster_id": {
+                            "nullable": true,
+                            "title": "String",
+                            "type": "string"
                           },
-                          "source_type": {
+                          "pfpUrl": {
+                            "nullable": true,
+                            "title": "String",
+                            "type": "string"
+                          },
+                          "sources": {
+                            "items": {
+                              "description": "columns and relationships of \"sources\"",
+                              "nullable": false,
+                              "properties": {
+                                "client_farcaster_id": {
+                                  "nullable": true,
+                                  "title": "Int",
+                                  "type": "integer"
+                                },
+                                "client_miniapp_platform_type": {
+                                  "nullable": true,
+                                  "title": "String",
+                                  "type": "string"
+                                },
+                                "features_camera_and_microphone_access": {
+                                  "nullable": true,
+                                  "title": "Boolean",
+                                  "type": "boolean"
+                                },
+                                "features_haptics": {
+                                  "nullable": true,
+                                  "title": "Boolean",
+                                  "type": "boolean"
+                                },
+                                "miniapp_id": {
+                                  "nullable": false,
+                                  "title": "String",
+                                  "type": "string"
+                                },
+                                "recorded_at": {
+                                  "$ref": "#/components/schemas/timestamptz!"
+                                },
+                                "source_type": {
+                                  "nullable": false,
+                                  "title": "String",
+                                  "type": "string"
+                                }
+                              },
+                              "title": "sources",
+                              "type": "object"
+                            },
                             "nullable": false,
+                            "type": "array"
+                          },
+                          "sourcesAggregate": {
+                            "description": "aggregated selection of \"sources\"",
+                            "nullable": false,
+                            "properties": {
+                              "aggregate": {
+                                "description": "aggregate fields of \"sources\"",
+                                "nullable": true,
+                                "properties": {
+                                  "count": {
+                                    "nullable": false,
+                                    "title": "Int",
+                                    "type": "integer"
+                                  }
+                                },
+                                "title": "sources_aggregate_fields",
+                                "type": "object"
+                              }
+                            },
+                            "title": "sources_aggregate",
+                            "type": "object"
+                          },
+                          "username": {
+                            "nullable": true,
                             "title": "String",
                             "type": "string"
                           }
                         },
-                        "title": "sources",
+                        "title": "users",
                         "type": "object"
                       },
                       "nullable": false,
@@ -351,7 +458,7 @@
     "/api/rest/app/{miniappId}": {
       "get": {
         "summary": "app",
-        "description": "***\nThe GraphQl query for this endpoint is:\n``` graphql\nquery app($miniappId: String!, $limit: Int! = 100, $offset: Int! = 0) {\n  sources(\n    where: { miniapp_id: { _eq: $miniappId } }\n    order_by: { recorded_at: desc }\n    limit: $limit\n    offset: $offset\n  ) {\n    farcaster_id\n    source_type\n    recorded_at\n  }\n}\n```",
+        "description": "***\nThe GraphQl query for this endpoint is:\n``` graphql\nquery app($miniappId: String!, $limit: Int! = 20, $offset: Int! = 0) {\n  sources(where: {miniapp_id: {_eq: $miniappId}}, order_by: {recorded_at: desc}, limit: $limit, offset: $offset) {\n    miniapp_id\n    source_type\n    recorded_at\n    features_haptics\n    features_camera_and_microphone_access\n    client_miniapp_platform_type\n    client_farcaster_id\n    user {\n      farcaster_id\n      username\n      displayName\n      pfpUrl\n    }\n  }\n}\n```",
         "parameters": [
           {
             "description": "Your x-hasura-admin-secret will be used for authentication of the API request.",
@@ -366,7 +473,7 @@
             "name": "limit",
             "required": false,
             "schema": {
-              "default": 100,
+              "default": 20,
               "type": "integer"
             }
           },
@@ -400,8 +507,28 @@
                         "description": "columns and relationships of \"sources\"",
                         "nullable": false,
                         "properties": {
-                          "farcaster_id": {
+                          "client_farcaster_id": {
                             "nullable": true,
+                            "title": "Int",
+                            "type": "integer"
+                          },
+                          "client_miniapp_platform_type": {
+                            "nullable": true,
+                            "title": "String",
+                            "type": "string"
+                          },
+                          "features_camera_and_microphone_access": {
+                            "nullable": true,
+                            "title": "Boolean",
+                            "type": "boolean"
+                          },
+                          "features_haptics": {
+                            "nullable": true,
+                            "title": "Boolean",
+                            "type": "boolean"
+                          },
+                          "miniapp_id": {
+                            "nullable": false,
                             "title": "String",
                             "type": "string"
                           },
@@ -412,6 +539,34 @@
                             "nullable": false,
                             "title": "String",
                             "type": "string"
+                          },
+                          "user": {
+                            "description": "columns and relationships of \"users\"",
+                            "nullable": true,
+                            "properties": {
+                              "displayName": {
+                                "nullable": true,
+                                "title": "String",
+                                "type": "string"
+                              },
+                              "farcaster_id": {
+                                "nullable": true,
+                                "title": "String",
+                                "type": "string"
+                              },
+                              "pfpUrl": {
+                                "nullable": true,
+                                "title": "String",
+                                "type": "string"
+                              },
+                              "username": {
+                                "nullable": true,
+                                "title": "String",
+                                "type": "string"
+                              }
+                            },
+                            "title": "users",
+                            "type": "object"
                           }
                         },
                         "title": "sources",
@@ -432,13 +587,1006 @@
   },
   "components": {
     "schemas": {
+      "users_constraint!": {
+        "description": "unique or primary key constraints on table \"users\"",
+        "enum": [
+          "users_farcaster_id_key",
+          "users_pkey"
+        ],
+        "nullable": false,
+        "title": "users_constraint"
+      },
+      "uuid": {
+        "nullable": true,
+        "pattern": "[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}",
+        "title": "uuid",
+        "type": "string"
+      },
+      "uuid!": {
+        "nullable": false,
+        "pattern": "[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}",
+        "title": "uuid",
+        "type": "string"
+      },
+      "uuid_comparison_exp": {
+        "description": "Boolean expression to compare columns of type \"uuid\". All fields are combined with logical 'AND'.",
+        "nullable": true,
+        "properties": {
+          "_eq": {
+            "$ref": "#/components/schemas/uuid"
+          },
+          "_gt": {
+            "$ref": "#/components/schemas/uuid"
+          },
+          "_gte": {
+            "$ref": "#/components/schemas/uuid"
+          },
+          "_in": {
+            "items": {
+              "$ref": "#/components/schemas/uuid!"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "_is_null": {
+            "nullable": true,
+            "title": "Boolean",
+            "type": "boolean"
+          },
+          "_lt": {
+            "$ref": "#/components/schemas/uuid"
+          },
+          "_lte": {
+            "$ref": "#/components/schemas/uuid"
+          },
+          "_neq": {
+            "$ref": "#/components/schemas/uuid"
+          },
+          "_nin": {
+            "items": {
+              "$ref": "#/components/schemas/uuid!"
+            },
+            "nullable": true,
+            "type": "array"
+          }
+        },
+        "title": "uuid_comparison_exp",
+        "type": "object"
+      },
+      "String_comparison_exp": {
+        "description": "Boolean expression to compare columns of type \"String\". All fields are combined with logical 'AND'.",
+        "nullable": true,
+        "properties": {
+          "_eq": {
+            "nullable": true,
+            "title": "String",
+            "type": "string"
+          },
+          "_gt": {
+            "nullable": true,
+            "title": "String",
+            "type": "string"
+          },
+          "_gte": {
+            "nullable": true,
+            "title": "String",
+            "type": "string"
+          },
+          "_ilike": {
+            "nullable": true,
+            "title": "String",
+            "type": "string"
+          },
+          "_in": {
+            "items": {
+              "nullable": false,
+              "title": "String",
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "_iregex": {
+            "nullable": true,
+            "title": "String",
+            "type": "string"
+          },
+          "_is_null": {
+            "nullable": true,
+            "title": "Boolean",
+            "type": "boolean"
+          },
+          "_like": {
+            "nullable": true,
+            "title": "String",
+            "type": "string"
+          },
+          "_lt": {
+            "nullable": true,
+            "title": "String",
+            "type": "string"
+          },
+          "_lte": {
+            "nullable": true,
+            "title": "String",
+            "type": "string"
+          },
+          "_neq": {
+            "nullable": true,
+            "title": "String",
+            "type": "string"
+          },
+          "_nilike": {
+            "nullable": true,
+            "title": "String",
+            "type": "string"
+          },
+          "_nin": {
+            "items": {
+              "nullable": false,
+              "title": "String",
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "_niregex": {
+            "nullable": true,
+            "title": "String",
+            "type": "string"
+          },
+          "_nlike": {
+            "nullable": true,
+            "title": "String",
+            "type": "string"
+          },
+          "_nregex": {
+            "nullable": true,
+            "title": "String",
+            "type": "string"
+          },
+          "_nsimilar": {
+            "nullable": true,
+            "title": "String",
+            "type": "string"
+          },
+          "_regex": {
+            "nullable": true,
+            "title": "String",
+            "type": "string"
+          },
+          "_similar": {
+            "nullable": true,
+            "title": "String",
+            "type": "string"
+          }
+        },
+        "title": "String_comparison_exp",
+        "type": "object"
+      },
+      "sources_select_column_sources_aggregate_bool_exp_bool_or_arguments_columns!": {
+        "description": "select \"sources_aggregate_bool_exp_bool_or_arguments_columns\" columns of table \"sources\"",
+        "enum": [
+          "features_camera_and_microphone_access",
+          "features_haptics"
+        ],
+        "nullable": false,
+        "title": "sources_select_column_sources_aggregate_bool_exp_bool_or_arguments_columns"
+      },
+      "Boolean_comparison_exp!": {
+        "description": "Boolean expression to compare columns of type \"Boolean\". All fields are combined with logical 'AND'.",
+        "nullable": false,
+        "properties": {
+          "_eq": {
+            "nullable": true,
+            "title": "Boolean",
+            "type": "boolean"
+          },
+          "_gt": {
+            "nullable": true,
+            "title": "Boolean",
+            "type": "boolean"
+          },
+          "_gte": {
+            "nullable": true,
+            "title": "Boolean",
+            "type": "boolean"
+          },
+          "_in": {
+            "items": {
+              "nullable": false,
+              "title": "Boolean",
+              "type": "boolean"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "_is_null": {
+            "nullable": true,
+            "title": "Boolean",
+            "type": "boolean"
+          },
+          "_lt": {
+            "nullable": true,
+            "title": "Boolean",
+            "type": "boolean"
+          },
+          "_lte": {
+            "nullable": true,
+            "title": "Boolean",
+            "type": "boolean"
+          },
+          "_neq": {
+            "nullable": true,
+            "title": "Boolean",
+            "type": "boolean"
+          },
+          "_nin": {
+            "items": {
+              "nullable": false,
+              "title": "Boolean",
+              "type": "boolean"
+            },
+            "nullable": true,
+            "type": "array"
+          }
+        },
+        "title": "Boolean_comparison_exp",
+        "type": "object"
+      },
+      "timestamptz": {
+        "nullable": true,
+        "title": "timestamptz"
+      },
       "timestamptz!": {
         "nullable": false,
         "title": "timestamptz"
       },
-      "bigint": {
+      "timestamptz_comparison_exp": {
+        "description": "Boolean expression to compare columns of type \"timestamptz\". All fields are combined with logical 'AND'.",
         "nullable": true,
-        "title": "bigint"
+        "properties": {
+          "_eq": {
+            "$ref": "#/components/schemas/timestamptz"
+          },
+          "_gt": {
+            "$ref": "#/components/schemas/timestamptz"
+          },
+          "_gte": {
+            "$ref": "#/components/schemas/timestamptz"
+          },
+          "_in": {
+            "items": {
+              "$ref": "#/components/schemas/timestamptz!"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "_is_null": {
+            "nullable": true,
+            "title": "Boolean",
+            "type": "boolean"
+          },
+          "_lt": {
+            "$ref": "#/components/schemas/timestamptz"
+          },
+          "_lte": {
+            "$ref": "#/components/schemas/timestamptz"
+          },
+          "_neq": {
+            "$ref": "#/components/schemas/timestamptz"
+          },
+          "_nin": {
+            "items": {
+              "$ref": "#/components/schemas/timestamptz!"
+            },
+            "nullable": true,
+            "type": "array"
+          }
+        },
+        "title": "timestamptz_comparison_exp",
+        "type": "object"
+      },
+      "Boolean_comparison_exp": {
+        "description": "Boolean expression to compare columns of type \"Boolean\". All fields are combined with logical 'AND'.",
+        "nullable": true,
+        "properties": {
+          "_eq": {
+            "nullable": true,
+            "title": "Boolean",
+            "type": "boolean"
+          },
+          "_gt": {
+            "nullable": true,
+            "title": "Boolean",
+            "type": "boolean"
+          },
+          "_gte": {
+            "nullable": true,
+            "title": "Boolean",
+            "type": "boolean"
+          },
+          "_in": {
+            "items": {
+              "nullable": false,
+              "title": "Boolean",
+              "type": "boolean"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "_is_null": {
+            "nullable": true,
+            "title": "Boolean",
+            "type": "boolean"
+          },
+          "_lt": {
+            "nullable": true,
+            "title": "Boolean",
+            "type": "boolean"
+          },
+          "_lte": {
+            "nullable": true,
+            "title": "Boolean",
+            "type": "boolean"
+          },
+          "_neq": {
+            "nullable": true,
+            "title": "Boolean",
+            "type": "boolean"
+          },
+          "_nin": {
+            "items": {
+              "nullable": false,
+              "title": "Boolean",
+              "type": "boolean"
+            },
+            "nullable": true,
+            "type": "array"
+          }
+        },
+        "title": "Boolean_comparison_exp",
+        "type": "object"
+      },
+      "Int_comparison_exp": {
+        "description": "Boolean expression to compare columns of type \"Int\". All fields are combined with logical 'AND'.",
+        "nullable": true,
+        "properties": {
+          "_eq": {
+            "nullable": true,
+            "title": "Int",
+            "type": "integer"
+          },
+          "_gt": {
+            "nullable": true,
+            "title": "Int",
+            "type": "integer"
+          },
+          "_gte": {
+            "nullable": true,
+            "title": "Int",
+            "type": "integer"
+          },
+          "_in": {
+            "items": {
+              "nullable": false,
+              "title": "Int",
+              "type": "integer"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "_is_null": {
+            "nullable": true,
+            "title": "Boolean",
+            "type": "boolean"
+          },
+          "_lt": {
+            "nullable": true,
+            "title": "Int",
+            "type": "integer"
+          },
+          "_lte": {
+            "nullable": true,
+            "title": "Int",
+            "type": "integer"
+          },
+          "_neq": {
+            "nullable": true,
+            "title": "Int",
+            "type": "integer"
+          },
+          "_nin": {
+            "items": {
+              "nullable": false,
+              "title": "Int",
+              "type": "integer"
+            },
+            "nullable": true,
+            "type": "array"
+          }
+        },
+        "title": "Int_comparison_exp",
+        "type": "object"
+      },
+      "sources_bool_exp!": {
+        "description": "Boolean expression to filter rows from the table \"sources\". All fields are combined with a logical 'AND'.",
+        "nullable": false,
+        "properties": {
+          "_and": {
+            "items": {
+              "$ref": "#/components/schemas/sources_bool_exp!"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "_not": {
+            "$ref": "#/components/schemas/sources_bool_exp"
+          },
+          "_or": {
+            "items": {
+              "$ref": "#/components/schemas/sources_bool_exp!"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "client_farcaster_id": {
+            "$ref": "#/components/schemas/Int_comparison_exp"
+          },
+          "client_miniapp_platform_type": {
+            "$ref": "#/components/schemas/String_comparison_exp"
+          },
+          "features_camera_and_microphone_access": {
+            "$ref": "#/components/schemas/Boolean_comparison_exp"
+          },
+          "features_haptics": {
+            "$ref": "#/components/schemas/Boolean_comparison_exp"
+          },
+          "id": {
+            "$ref": "#/components/schemas/uuid_comparison_exp"
+          },
+          "miniapp_id": {
+            "$ref": "#/components/schemas/String_comparison_exp"
+          },
+          "recorded_at": {
+            "$ref": "#/components/schemas/timestamptz_comparison_exp"
+          },
+          "source_type": {
+            "$ref": "#/components/schemas/String_comparison_exp"
+          },
+          "user": {
+            "$ref": "#/components/schemas/users_bool_exp"
+          },
+          "user_id": {
+            "$ref": "#/components/schemas/uuid_comparison_exp"
+          }
+        },
+        "title": "sources_bool_exp",
+        "type": "object"
+      },
+      "sources_bool_exp": {
+        "description": "Boolean expression to filter rows from the table \"sources\". All fields are combined with a logical 'AND'.",
+        "nullable": true,
+        "properties": {
+          "_and": {
+            "items": {
+              "$ref": "#/components/schemas/sources_bool_exp!"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "_not": {
+            "$ref": "#/components/schemas/sources_bool_exp"
+          },
+          "_or": {
+            "items": {
+              "$ref": "#/components/schemas/sources_bool_exp!"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "client_farcaster_id": {
+            "$ref": "#/components/schemas/Int_comparison_exp"
+          },
+          "client_miniapp_platform_type": {
+            "$ref": "#/components/schemas/String_comparison_exp"
+          },
+          "features_camera_and_microphone_access": {
+            "$ref": "#/components/schemas/Boolean_comparison_exp"
+          },
+          "features_haptics": {
+            "$ref": "#/components/schemas/Boolean_comparison_exp"
+          },
+          "id": {
+            "$ref": "#/components/schemas/uuid_comparison_exp"
+          },
+          "miniapp_id": {
+            "$ref": "#/components/schemas/String_comparison_exp"
+          },
+          "recorded_at": {
+            "$ref": "#/components/schemas/timestamptz_comparison_exp"
+          },
+          "source_type": {
+            "$ref": "#/components/schemas/String_comparison_exp"
+          },
+          "user": {
+            "$ref": "#/components/schemas/users_bool_exp"
+          },
+          "user_id": {
+            "$ref": "#/components/schemas/uuid_comparison_exp"
+          }
+        },
+        "title": "sources_bool_exp",
+        "type": "object"
+      },
+      "sources_aggregate_bool_exp_bool_or": {
+        "nullable": true,
+        "properties": {
+          "arguments": {
+            "$ref": "#/components/schemas/sources_select_column_sources_aggregate_bool_exp_bool_or_arguments_columns!"
+          },
+          "distinct": {
+            "nullable": true,
+            "title": "Boolean",
+            "type": "boolean"
+          },
+          "filter": {
+            "$ref": "#/components/schemas/sources_bool_exp"
+          },
+          "predicate": {
+            "$ref": "#/components/schemas/Boolean_comparison_exp!"
+          }
+        },
+        "title": "sources_aggregate_bool_exp_bool_or",
+        "type": "object"
+      },
+      "sources_select_column_sources_aggregate_bool_exp_bool_and_arguments_columns!": {
+        "description": "select \"sources_aggregate_bool_exp_bool_and_arguments_columns\" columns of table \"sources\"",
+        "enum": [
+          "features_camera_and_microphone_access",
+          "features_haptics"
+        ],
+        "nullable": false,
+        "title": "sources_select_column_sources_aggregate_bool_exp_bool_and_arguments_columns"
+      },
+      "sources_aggregate_bool_exp_bool_and": {
+        "nullable": true,
+        "properties": {
+          "arguments": {
+            "$ref": "#/components/schemas/sources_select_column_sources_aggregate_bool_exp_bool_and_arguments_columns!"
+          },
+          "distinct": {
+            "nullable": true,
+            "title": "Boolean",
+            "type": "boolean"
+          },
+          "filter": {
+            "$ref": "#/components/schemas/sources_bool_exp"
+          },
+          "predicate": {
+            "$ref": "#/components/schemas/Boolean_comparison_exp!"
+          }
+        },
+        "title": "sources_aggregate_bool_exp_bool_and",
+        "type": "object"
+      },
+      "sources_select_column!": {
+        "description": "select columns of table \"sources\"",
+        "enum": [
+          "client_farcaster_id",
+          "client_miniapp_platform_type",
+          "features_camera_and_microphone_access",
+          "features_haptics",
+          "id",
+          "miniapp_id",
+          "recorded_at",
+          "source_type",
+          "user_id"
+        ],
+        "nullable": false,
+        "title": "sources_select_column"
+      },
+      "Int_comparison_exp!": {
+        "description": "Boolean expression to compare columns of type \"Int\". All fields are combined with logical 'AND'.",
+        "nullable": false,
+        "properties": {
+          "_eq": {
+            "nullable": true,
+            "title": "Int",
+            "type": "integer"
+          },
+          "_gt": {
+            "nullable": true,
+            "title": "Int",
+            "type": "integer"
+          },
+          "_gte": {
+            "nullable": true,
+            "title": "Int",
+            "type": "integer"
+          },
+          "_in": {
+            "items": {
+              "nullable": false,
+              "title": "Int",
+              "type": "integer"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "_is_null": {
+            "nullable": true,
+            "title": "Boolean",
+            "type": "boolean"
+          },
+          "_lt": {
+            "nullable": true,
+            "title": "Int",
+            "type": "integer"
+          },
+          "_lte": {
+            "nullable": true,
+            "title": "Int",
+            "type": "integer"
+          },
+          "_neq": {
+            "nullable": true,
+            "title": "Int",
+            "type": "integer"
+          },
+          "_nin": {
+            "items": {
+              "nullable": false,
+              "title": "Int",
+              "type": "integer"
+            },
+            "nullable": true,
+            "type": "array"
+          }
+        },
+        "title": "Int_comparison_exp",
+        "type": "object"
+      },
+      "sources_aggregate_bool_exp_count": {
+        "nullable": true,
+        "properties": {
+          "arguments": {
+            "items": {
+              "$ref": "#/components/schemas/sources_select_column!"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "distinct": {
+            "nullable": true,
+            "title": "Boolean",
+            "type": "boolean"
+          },
+          "filter": {
+            "$ref": "#/components/schemas/sources_bool_exp"
+          },
+          "predicate": {
+            "$ref": "#/components/schemas/Int_comparison_exp!"
+          }
+        },
+        "title": "sources_aggregate_bool_exp_count",
+        "type": "object"
+      },
+      "sources_aggregate_bool_exp": {
+        "nullable": true,
+        "properties": {
+          "bool_and": {
+            "$ref": "#/components/schemas/sources_aggregate_bool_exp_bool_and"
+          },
+          "bool_or": {
+            "$ref": "#/components/schemas/sources_aggregate_bool_exp_bool_or"
+          },
+          "count": {
+            "$ref": "#/components/schemas/sources_aggregate_bool_exp_count"
+          }
+        },
+        "title": "sources_aggregate_bool_exp",
+        "type": "object"
+      },
+      "users_bool_exp!": {
+        "description": "Boolean expression to filter rows from the table \"users\". All fields are combined with a logical 'AND'.",
+        "nullable": false,
+        "properties": {
+          "_and": {
+            "items": {
+              "$ref": "#/components/schemas/users_bool_exp!"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "_not": {
+            "$ref": "#/components/schemas/users_bool_exp"
+          },
+          "_or": {
+            "items": {
+              "$ref": "#/components/schemas/users_bool_exp!"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "displayName": {
+            "$ref": "#/components/schemas/String_comparison_exp"
+          },
+          "farcaster_id": {
+            "$ref": "#/components/schemas/String_comparison_exp"
+          },
+          "id": {
+            "$ref": "#/components/schemas/uuid_comparison_exp"
+          },
+          "pfpUrl": {
+            "$ref": "#/components/schemas/String_comparison_exp"
+          },
+          "sources": {
+            "$ref": "#/components/schemas/sources_bool_exp"
+          },
+          "sources_aggregate": {
+            "$ref": "#/components/schemas/sources_aggregate_bool_exp"
+          },
+          "username": {
+            "$ref": "#/components/schemas/String_comparison_exp"
+          }
+        },
+        "title": "users_bool_exp",
+        "type": "object"
+      },
+      "users_bool_exp": {
+        "description": "Boolean expression to filter rows from the table \"users\". All fields are combined with a logical 'AND'.",
+        "nullable": true,
+        "properties": {
+          "_and": {
+            "items": {
+              "$ref": "#/components/schemas/users_bool_exp!"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "_not": {
+            "$ref": "#/components/schemas/users_bool_exp"
+          },
+          "_or": {
+            "items": {
+              "$ref": "#/components/schemas/users_bool_exp!"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "displayName": {
+            "$ref": "#/components/schemas/String_comparison_exp"
+          },
+          "farcaster_id": {
+            "$ref": "#/components/schemas/String_comparison_exp"
+          },
+          "id": {
+            "$ref": "#/components/schemas/uuid_comparison_exp"
+          },
+          "pfpUrl": {
+            "$ref": "#/components/schemas/String_comparison_exp"
+          },
+          "sources": {
+            "$ref": "#/components/schemas/sources_bool_exp"
+          },
+          "sources_aggregate": {
+            "$ref": "#/components/schemas/sources_aggregate_bool_exp"
+          },
+          "username": {
+            "$ref": "#/components/schemas/String_comparison_exp"
+          }
+        },
+        "title": "users_bool_exp",
+        "type": "object"
+      },
+      "users_update_column!": {
+        "description": "update columns of table \"users\"",
+        "enum": [
+          "displayName",
+          "farcaster_id",
+          "id",
+          "pfpUrl",
+          "username"
+        ],
+        "nullable": false,
+        "title": "users_update_column"
+      },
+      "users_on_conflict": {
+        "description": "on_conflict condition type for table \"users\"",
+        "nullable": true,
+        "properties": {
+          "constraint": {
+            "$ref": "#/components/schemas/users_constraint!"
+          },
+          "update_columns": {
+            "items": {
+              "$ref": "#/components/schemas/users_update_column!"
+            },
+            "nullable": false,
+            "type": "array"
+          },
+          "where": {
+            "$ref": "#/components/schemas/users_bool_exp"
+          }
+        },
+        "title": "users_on_conflict",
+        "type": "object"
+      },
+      "sources_constraint!": {
+        "description": "unique or primary key constraints on table \"sources\"",
+        "enum": [
+          "sources_pkey"
+        ],
+        "nullable": false,
+        "title": "sources_constraint"
+      },
+      "sources_update_column!": {
+        "description": "update columns of table \"sources\"",
+        "enum": [
+          "client_farcaster_id",
+          "client_miniapp_platform_type",
+          "features_camera_and_microphone_access",
+          "features_haptics",
+          "id",
+          "miniapp_id",
+          "recorded_at",
+          "source_type",
+          "user_id"
+        ],
+        "nullable": false,
+        "title": "sources_update_column"
+      },
+      "sources_on_conflict": {
+        "description": "on_conflict condition type for table \"sources\"",
+        "nullable": true,
+        "properties": {
+          "constraint": {
+            "$ref": "#/components/schemas/sources_constraint!"
+          },
+          "update_columns": {
+            "items": {
+              "$ref": "#/components/schemas/sources_update_column!"
+            },
+            "nullable": false,
+            "type": "array"
+          },
+          "where": {
+            "$ref": "#/components/schemas/sources_bool_exp"
+          }
+        },
+        "title": "sources_on_conflict",
+        "type": "object"
+      },
+      "users_obj_rel_insert_input": {
+        "description": "input type for inserting object relation for remote table \"users\"",
+        "nullable": true,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/users_insert_input!"
+          },
+          "on_conflict": {
+            "$ref": "#/components/schemas/users_on_conflict"
+          }
+        },
+        "title": "users_obj_rel_insert_input",
+        "type": "object"
+      },
+      "sources_insert_input!": {
+        "description": "input type for inserting data into table \"sources\"",
+        "nullable": false,
+        "properties": {
+          "client_farcaster_id": {
+            "nullable": true,
+            "title": "Int",
+            "type": "integer"
+          },
+          "client_miniapp_platform_type": {
+            "nullable": true,
+            "title": "String",
+            "type": "string"
+          },
+          "features_camera_and_microphone_access": {
+            "nullable": true,
+            "title": "Boolean",
+            "type": "boolean"
+          },
+          "features_haptics": {
+            "nullable": true,
+            "title": "Boolean",
+            "type": "boolean"
+          },
+          "id": {
+            "$ref": "#/components/schemas/uuid"
+          },
+          "miniapp_id": {
+            "nullable": true,
+            "title": "String",
+            "type": "string"
+          },
+          "recorded_at": {
+            "$ref": "#/components/schemas/timestamptz"
+          },
+          "source_type": {
+            "nullable": true,
+            "title": "String",
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/users_obj_rel_insert_input"
+          },
+          "user_id": {
+            "$ref": "#/components/schemas/uuid"
+          }
+        },
+        "title": "sources_insert_input",
+        "type": "object"
+      },
+      "sources_arr_rel_insert_input": {
+        "description": "input type for inserting array relation for remote table \"sources\"",
+        "nullable": true,
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/sources_insert_input!"
+            },
+            "nullable": false,
+            "type": "array"
+          },
+          "on_conflict": {
+            "$ref": "#/components/schemas/sources_on_conflict"
+          }
+        },
+        "title": "sources_arr_rel_insert_input",
+        "type": "object"
+      },
+      "users_insert_input!": {
+        "description": "input type for inserting data into table \"users\"",
+        "nullable": false,
+        "properties": {
+          "displayName": {
+            "nullable": true,
+            "title": "String",
+            "type": "string"
+          },
+          "farcaster_id": {
+            "nullable": true,
+            "title": "String",
+            "type": "string"
+          },
+          "id": {
+            "$ref": "#/components/schemas/uuid"
+          },
+          "pfpUrl": {
+            "nullable": true,
+            "title": "String",
+            "type": "string"
+          },
+          "sources": {
+            "$ref": "#/components/schemas/sources_arr_rel_insert_input"
+          },
+          "username": {
+            "nullable": true,
+            "title": "String",
+            "type": "string"
+          }
+        },
+        "title": "users_insert_input",
+        "type": "object"
+      },
+      "users_obj_rel_insert_input!": {
+        "description": "input type for inserting object relation for remote table \"users\"",
+        "nullable": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/users_insert_input!"
+          },
+          "on_conflict": {
+            "$ref": "#/components/schemas/users_on_conflict"
+          }
+        },
+        "title": "users_obj_rel_insert_input",
+        "type": "object"
       }
     }
   },
