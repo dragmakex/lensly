@@ -17,6 +17,39 @@ Check it out [here](https://farcaster.xyz/~/mini-apps/launch?domain=lensly.serap
 - [Infra](./infra/): contains lensly infrastructure.
 - [Docs](./docs/): features product, engineering, guides, and design documentation.
 
+## System Architecture & Tech Stack
+
+The diagarm below provides a simplified overview about the key components of the analytics platform:
+```mermaid
+flowchart LR
+LenslyApp[Lensly App]
+EdgeAPI[Edge API]
+Database[Database]
+MiniApp[Mini App]
+LenslySDK[Lensly SDK]
+User[User]
+
+User --"uses"--> LenslyApp
+LenslyApp --"fetches data"--> EdgeAPI
+EdgeAPI --"read & write"--> Database
+User --"uses"--> MiniApp
+MiniApp --"contains"--> LenslySDK
+LenslySDK --"posts data"-->EdgeAPI
+```
+
+Lensly uses a modern techstack optimal for performance and maintainabiltiy across backend, frontend, orchestration, and tooling.
+
+| Component     | Technology                                                 |
+| ------------- | ---------------------------------------------------------- |
+| Lensly App    | Typescript; Next.js; React.js; Tailwind; ShadCN; HTML, CSS |
+| Lensly SDK    | Typescript;                                                |
+| Edge API      | Hasura; Caddy;                                             |
+| Database      | Postgres;                                                  |
+| Orchestration | Docker; Vercel, GitHub                                     |
+| Toolings      | Husky; Mise; EsLint; CommitLint, GitHub Action, NPM        |
+
+For more information, check out our [engineering documentation](./docs/engineering.md).
+
 ## Quick Start
 
 Install required dependencies:
