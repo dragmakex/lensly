@@ -27,7 +27,7 @@ export default function ShadcnAreaChart({
   ];
 
   return (
-    <div className="liquid-glass rounded-2xl p-4 sm:p-6 text-white relative overflow-hidden h-full flex flex-col">
+    <div className="liquid-glass rounded-2xl p-4 sm:p-6 text-white relative overflow-hidden h-full flex flex-col select-none pointer-events-none">
       <div className="relative z-10 flex-1 flex flex-col">
         {/* Header */}
         <div className="flex items-center gap-3 mb-4 sm:mb-6">
@@ -43,7 +43,7 @@ export default function ShadcnAreaChart({
         {/* Chart */}
         <div className="flex-1 w-full flex items-center justify-center min-h-0">
           {data && data.length > 0 ? (
-            <ResponsiveContainer width="100%" height="100%" style={{ pointerEvents: 'none' }}>
+            <ResponsiveContainer width="100%" height="100%" style={{ pointerEvents: 'none', userSelect: 'none' }}>
               <AreaChart data={data}>
                 <defs>
                   {sources.map((source, index) => (
@@ -86,7 +86,7 @@ export default function ShadcnAreaChart({
                     color: 'rgba(255,255,255,0.8)'
                   }}
                   formatter={(value: string) => (
-                    <span style={{ color: purpleColors[sources.indexOf(value)] || '#8B5CF6' }}>
+                    <span style={{ color: purpleColors[sources.indexOf(value)] || '#8B5CF6', pointerEvents: 'none', userSelect: 'none' }}>
                       {value}
                     </span>
                   )}

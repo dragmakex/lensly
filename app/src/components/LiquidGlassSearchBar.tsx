@@ -63,7 +63,7 @@ export default function LiquidGlassSearchBar({
         >
           <input
             type="text"
-            placeholder="Enter miniapp domain..."
+            placeholder="Try typing 'lensly' or your Farcaster username!"
             value={searchValue}
             onChange={(e) => onSearchChange(e.target.value)}
             onKeyDown={(e) => {
@@ -78,8 +78,8 @@ export default function LiquidGlassSearchBar({
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{
-              duration: 0.6,
-              delay: 0.6,
+              duration: 0.8,
+              delay: 0.3,
               ease: "easeOut"
             }}
             className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-white/70"
@@ -92,8 +92,8 @@ export default function LiquidGlassSearchBar({
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{
-              duration: 0.6,
-              delay: 0.8,
+              duration: 0.8,
+              delay: 0.3,
               ease: "easeOut"
             }}
             onClick={onSearch}
@@ -118,8 +118,8 @@ export default function LiquidGlassSearchBar({
             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 translate-y-full mt-2"
           >
             <div className="liquid-glass rounded-md px-4 py-2 text-center max-w-xs">
-              <p className="text-white/80 text-xs font-medium">No ID found!</p>
-              <p className="text-white/60 text-xs opacity-80 mt-1">Try searching for a different app ID</p>
+              <p className="text-white/80 text-xs font-medium">No data found!</p>
+              <p className="text-white/60 text-xs opacity-80 mt-1">Try another app ID or username</p>
             </div>
           </motion.div>
         )}

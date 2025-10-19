@@ -55,38 +55,67 @@ export default function ShadcnPieChart({
 
     const numericCx = typeof cx === 'number' ? cx : parseFloat(cx);
     const numericCy = typeof cy === 'number' ? cy : parseFloat(cy);
-    const numericInnerRadius = typeof innerRadius === 'number' ? innerRadius : parseFloat(innerRadius);
     const numericOuterRadius = typeof outerRadius === 'number' ? outerRadius : parseFloat(outerRadius);
 
     if (
       Number.isNaN(numericCx) ||
       Number.isNaN(numericCy) ||
-      Number.isNaN(numericInnerRadius) ||
       Number.isNaN(numericOuterRadius)
     ) {
       return null;
     }
 
-    const radius = numericInnerRadius + (numericOuterRadius - numericInnerRadius) * 0.5;
-
-    const x = numericCx + radius * Math.cos(-midAngle * RADIAN);
-    const y = numericCy + radius * Math.sin(-midAngle * RADIAN);
-
     const displayPercent = Math.round((percent ?? 0) * 100);
 
     if (displayPercent < 5) return null;
 
+    // Calculate positions for leader line and label
+    const labelRadius = numericOuterRadius + 30; // Position for label
+
+    const startX = numericCx + numericOuterRadius * Math.cos(-midAngle * RADIAN);
+    const startY = numericCy + numericOuterRadius * Math.sin(-midAngle * RADIAN);
+
+    const endX = numericCx + labelRadius * Math.cos(-midAngle * RADIAN);
+    const endY = numericCy + labelRadius * Math.sin(-midAngle * RADIAN);
+
+    // Adjust text position slightly based on direction to ensure it's at the line end
+    let textX = endX;
+    const textY = endY;
+    let textAnchor = 'end';
+
+    if (endX > numericCx) {
+      // Text should be to the right of the line end
+      textX = endX + 4; // Add small offset
+      textAnchor = 'start';
+    } else {
+      // Text should be to the left of the line end
+      textX = endX - 4; // Add small offset
+      textAnchor = 'end';
+    }
+
     return (
-      <text
-    x={x}
-    y={y}
-    fill="white"
-    textAnchor={x > numericCx ? 'start' : 'end'}
-        dominantBaseline="central"
-        className="text-xs font-medium"
-      >
-        {`${displayPercent}%`}
-      </text>
+      <g>
+        {/* Leader line */}
+        <line
+          x1={startX}
+          y1={startY}
+          x2={endX}
+          y2={endY}
+          stroke="rgba(255,255,255,0.6)"
+          strokeWidth={1}
+        />
+        {/* Percentage label at end of line */}
+        <text
+          x={textX}
+          y={textY}
+          fill="white"
+          textAnchor={textAnchor}
+          dominantBaseline="middle"
+          className="text-xs font-medium"
+        >
+          {`${displayPercent}%`}
+        </text>
+      </g>
     );
   };
 
@@ -94,7 +123,7 @@ export default function ShadcnPieChart({
   const totalEntries = chartData.reduce((sum, item) => sum + item.count, 0);
 
   return (
-    <div className="liquid-glass rounded-2xl p-4 sm:p-6 text-white relative overflow-hidden h-full flex flex-col">
+    <div className="liquid-glass rounded-2xl p-4 sm:p-6 text-white relative overflow-hidden h-full flex flex-col select-none pointer-events-none">
       <div className="relative z-10 flex-1 flex flex-col">
         {/* Header */}
         <div className="flex items-center gap-3 mb-4 sm:mb-6">
@@ -113,7 +142,7 @@ export default function ShadcnPieChart({
         {/* Chart */}
         <div className="flex-1 w-full flex items-center justify-center">
           {chartData.length > 0 ? (
-            <ResponsiveContainer width="100%" height="100%" style={{ pointerEvents: 'none' }}>
+            <ResponsiveContainer width="100%" height="100%" style={{ pointerEvents: 'none', userSelect: 'none' }}>
               <PieChart>
                 <Pie
                   data={chartData}
@@ -121,6 +150,7 @@ export default function ShadcnPieChart({
                   cy="50%"
                   labelLine={false}
                   label={renderCustomizedLabel}
+                  isAnimationActive={false}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="count"
@@ -141,7 +171,7 @@ export default function ShadcnPieChart({
                     color: 'rgba(255,255,255,0.8)'
                   }}
                   formatter={(value: string, entry?: LegendPayload) => (
-                    <span>
+                    <span style={{ pointerEvents: 'none', userSelect: 'none' }}>
                       {value} ({(entry?.payload as PieDatum | undefined)?.percentage ?? 0}%)
                     </span>
                   )}

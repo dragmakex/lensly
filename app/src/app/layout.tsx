@@ -77,7 +77,7 @@ export const metadata: Metadata = {
           "type": "launch_frame",
           "name": "LENSLY",
           "url": "https://lensly.seraphim.zone",
-          "splashImageUrl": "https://lensly.seraphim.zone/logo.svg",
+          "splashImageUrl": "https://lensly.seraphim.zone/logo.png",
           "splashBackgroundColor": "#000000"
         }
       }

@@ -26,7 +26,7 @@ export default function LiquidGlassButton({
         ease: "easeOut"
       }}
       onClick={onClick}
-      className={`liquid-glass inline-flex items-center justify-center px-4 py-2 text-white text-sm font-medium rounded-lg hover:bg-white/30 transition-all duration-300 ${className}`}
+      className={`liquid-glass inline-flex items-center justify-center px-4 py-2 text-white text-sm font-medium rounded-lg hover:bg-white/30 transition-all duration-300 select-none ${className}`}
     >
       {icon || <ArrowLeft className="w-4 h-4" />}
       {children}

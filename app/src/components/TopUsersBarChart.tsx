@@ -1,7 +1,7 @@
 "use client";
 
 import { Users } from "lucide-react";
-import { Bar, BarChart, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
+import { Bar, BarChart, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import type { TopUser } from "@/types/charts";
 
 type ChartDataPoint = {
@@ -9,11 +9,6 @@ type ChartDataPoint = {
   visitors: number;
   fill: string;
   originalData: TopUser;
-};
-
-type CustomTooltipPayload = {
-  value?: number;
-  payload?: ChartDataPoint;
 };
 
 interface TopUsersBarChartProps {
@@ -49,26 +44,13 @@ export default function TopUsersBarChart({
     originalData: item // Keep original data for tooltip
   })) || [];
 
-  // Custom tooltip
-  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: CustomTooltipPayload[] }) => {
-    if (active && payload && payload.length) {
-      const tooltipEntry = payload[0];
-      const originalData = tooltipEntry?.payload?.originalData;
-      return (
-        <div className="liquid-glass rounded-lg px-3 py-2 text-white border border-white/30">
-          <p className="text-xs font-medium">{tooltipEntry?.payload?.user}</p>
-          <p className="text-xs opacity-80">{tooltipEntry?.value} interactions</p>
-          {originalData?.user_id && originalData.user_id !== 'anonymous' && (
-            <p className="text-xs opacity-60">FID: {originalData.user_id}</p>
-          )}
-        </div>
-      );
-    }
-    return null;
-  };
+  // Calculate left margin based on longest name
+  const maxNameLength = chartData.length > 0 ? Math.max(...chartData.map(d => d.user.length)) : 0;
+  const leftMargin = Math.max(25, maxNameLength * 5); // Min 25px, plus 5px per character
 
+  
   return (
-    <div className="liquid-glass rounded-2xl p-4 sm:p-6 text-white relative overflow-hidden h-full flex flex-col">
+    <div className="liquid-glass rounded-2xl p-4 sm:p-6 text-white relative overflow-hidden h-full flex flex-col select-none pointer-events-none">
       <div className="relative z-10 flex-1 flex flex-col">
         {/* Header */}
         <div className="flex items-center gap-3 mb-4 sm:mb-6">
@@ -84,13 +66,13 @@ export default function TopUsersBarChart({
         {/* Chart */}
         <div className="flex-1 w-full flex items-center justify-center min-h-0">
           {chartData.length > 0 ? (
-            <ResponsiveContainer width="100%" height="100%" style={{ pointerEvents: 'none' }}>
+            <ResponsiveContainer width="100%" height="100%" style={{ pointerEvents: 'none', userSelect: 'none' }}>
               <BarChart
                 data={chartData}
                 layout="vertical"
                 margin={{
-                  left: 0,
-                  right: 0,
+                  left: leftMargin,
+                  right: 20,
                   top: 0,
                   bottom: 0
                 }}
@@ -104,9 +86,10 @@ export default function TopUsersBarChart({
                   dataKey="user"
                   type="category"
                   tickLine={false}
-                  tickMargin={8}
+                  tickMargin={3}
                   axisLine={false}
-                  tick={{ fill: 'rgba(255,255,255,0.8)', fontSize: 12 }}
+                  tick={{ fill: 'rgba(255,255,255,0.8)', fontSize: 14, pointerEvents: 'none', userSelect: 'none' }}
+                  width={50}
                 />
                 <Bar
                   dataKey="visitors"

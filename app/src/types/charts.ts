@@ -2,6 +2,7 @@ export type SourceRecord = {
   farcaster_id: string | null;
   source_type: string | null;
   recorded_at: string;
+  client_miniapp_platform_type?: string | null;
 };
 
 export type PieDatum = {
