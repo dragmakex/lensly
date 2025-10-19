@@ -24,13 +24,10 @@ export default function Home() {
   const [userData, setUserData] = useState<Array<{ user_id: string; user_name: string; count: number }> | null>(null);
   const [showCharts, setShowCharts] = useState(false);
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
-  const [context, setContext] = useState<Context.FrameContext>();
-
   // Farcaster Mini App Integration
   useEffect(() => {
     const load = async () => {
       const frameContext = await sdk.context;
-      setContext(frameContext);
       console.log("Farcaster Mini App Context:", frameContext);
       sdk.actions.ready();
     };

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 interface LiquidGlassSearchBarProps {
   searchValue: string;
@@ -31,9 +32,11 @@ export default function LiquidGlassSearchBar({
         className="relative z-10 mb-8 flex justify-center"
       >
         <div className="liquid-glass rounded-2xl p-4 relative overflow-hidden">
-          <img
+          <Image
             src="/logo.svg"
             alt="Lensly"
+            width={80}
+            height={80}
             className="w-16 h-16 sm:w-20 sm:h-20 relative z-10"
           />
         </div>
