@@ -42,8 +42,7 @@ var buildPayload = (miniappId, context) => {
   const clientFarcasterId = context?.client?.clientFid;
   const payload = {
     miniappId,
-    sourceType,
-    farcasterId: farcasterId ?? ""
+    sourceType
   };
   if (featuresHaptics !== void 0) {
     payload.featuresHaptics = featuresHaptics;

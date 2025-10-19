@@ -7,7 +7,6 @@ const FALLBACK_SOURCE_TYPE = 'website';
 type InsertNextPayload = {
   miniappId: string;
   sourceType: string;
-  farcasterId: string;
   featuresHaptics?: boolean;
   featuresCameraAndMic?: boolean;
   clientPlatformType?: string;
@@ -76,7 +75,6 @@ const buildPayload = (miniappId: string, context?: MiniAppContext | null) => {
   const payload: InsertNextPayload = {
     miniappId,
     sourceType,
-    farcasterId: farcasterId ?? ''
   };
 
   if (featuresHaptics !== undefined) {
