@@ -17,6 +17,35 @@ Check it out [here](https://farcaster.xyz/~/mini-apps/launch?domain=lensly.serap
 - [Infra](./infra/): contains lensly infrastructure.
 - [Docs](./docs/): features product, engineering, guides, and design documentation.
 
+## Quick Start
+
+Install required dependencies:
+```bash
+# You might have to authenticate to GitHub Packages via NODE_AUTH_TOKEN
+npm install @sen-com/lensly
+```
+
+Integrate the lensly sdk in your layout:
+```typescript
+import { AnalyticsProvider } from '@sen-com/lensly';
+
+export function Root({ children }: { children: React.ReactNode }) {
+  return (
+    <AnalyticsProvider miniappId="demo-app">
+      {children}
+    </AnalyticsProvider>
+  );
+}
+```
+
+For more information check out our [integration guide](./docs/docs/developer-guide.md).
+
+## Important Links
+
+- [Demo](https://youtube.com/shorts/l37PzlkKhU0)
+- [Website](https://lensly.seraphim.zone)
+- [Mini App]([here](https://farcaster.xyz/~/mini-apps/launch?domain=lensly.seraphim.zone)
+
 ---
 
 All Rights Reserved!
