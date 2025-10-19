@@ -1,11 +1,11 @@
 # Lensly
 
-**Lensly is the Analytics Hub for Farcaster Applications.** It captures application context, enriches collects comprehensive user profiles, and ships real-time insights about the entire Farcaster ecosystem.
+**Lensly is the Analytics Hub for Farcaster Applications.** It captures application context, builds comprehensive user profiles, and ships real-time insights about the entire Mini App ecosystem.
 
 ## Executive Summary
 
-- **Problem**: Mini apps lack drop-in analytics that understand Farcaster-native data.
-- **Solution**: Lensly SDK collects deep farcaster application usage metrics and conveniently surfaces them in a user-facing dashboard.
+- **Problem**: Mini Apps lack drop-in analytics that understand Farcaster-native data.
+- **Solution**: Lensly SDK collects deep Farcaster Application usage metrics and conveniently surfaces them in a user-facing dashboard.
 - **Impact**: Developers embed one provider, founders open a dashboard, judges see live data and user growth.
 
 Check it out [here](https://farcaster.xyz/~/mini-apps/launch?domain=lensly.seraphim.zone)!
