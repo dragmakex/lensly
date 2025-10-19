@@ -18,7 +18,7 @@ export default function LiquidGlassSearchBar({
   showError
 }: LiquidGlassSearchBarProps) {
   return (
-    <div className="flex items-center justify-center min-h-screen w-full relative bg-black p-4">
+    <div className="flex flex-col items-center justify-center min-h-screen w-full relative bg-black p-2 sm:p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.3, y: 50 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -26,7 +26,7 @@ export default function LiquidGlassSearchBar({
           duration: 1.2,
           ease: [0.25, 0.46, 0.45, 0.94]
         }}
-        className="relative z-10 px-4 w-64 sm:w-72 md:w-80 lg:w-96"
+        className="relative z-10 mx-auto w-80 sm:w-96 md:w-[28rem] lg:w-[32rem] xl:w-[36rem] 2xl:w-[40rem]"
       >
         <motion.div
           initial={{ width: 0 }}
@@ -49,7 +49,7 @@ export default function LiquidGlassSearchBar({
               }
             }}
             disabled={isLoading}
-            className="pl-8 pr-12 py-2 w-full text-white text-sm bg-black/20 border border-white/50 backdrop-blur-sm rounded-full shadow-[inset_0_1px_0px_rgba(255,255,255,0.75),0_0_9px_rgba(0,0,0,0.2),0_3px_8px_rgba(0,0,0,0.15)] placeholder:text-white/70 focus:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all duration-300 relative before:absolute before:inset-0 before:rounded-lg before:bg-gradient-to-br before:from-white/60 before:via-transparent before:to-transparent before:opacity-70 before:pointer-events-none after:absolute after:inset-0 before:rounded-lg after:bg-gradient-to-tl after:from-white/30 after:via-transparent after:to-transparent after:opacity-50 after:pointer-events-none disabled:opacity-50"
+            className="pl-10 pr-14 py-3 w-full text-white text-sm bg-black/20 border border-white/50 backdrop-blur-sm rounded-full shadow-[inset_0_1px_0px_rgba(255,255,255,0.75),0_0_9px_rgba(0,0,0,0.2),0_3px_8px_rgba(0,0,0,0.15)] placeholder:text-white/70 focus:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all duration-300 relative before:absolute before:inset-0 before:rounded-lg before:bg-gradient-to-br before:from-white/60 before:via-transparent before:to-transparent before:opacity-70 before:pointer-events-none after:absolute after:inset-0 before:rounded-lg after:bg-gradient-to-tl after:from-white/30 after:via-transparent after:to-transparent after:opacity-50 after:pointer-events-none disabled:opacity-50"
           />
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -59,9 +59,9 @@ export default function LiquidGlassSearchBar({
               delay: 0.6,
               ease: "easeOut"
             }}
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/70"
+            className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-white/70"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3 sm:w-4 sm:h-4">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 sm:w-5 sm:h-5">
               <path fillRule="evenodd" d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z" clipRule="evenodd" />
             </svg>
           </motion.div>
@@ -75,12 +75,12 @@ export default function LiquidGlassSearchBar({
             }}
             onClick={onSearch}
             disabled={isLoading}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/70 hover:text-white transition-colors duration-200 bg-transparent border-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white/70 hover:text-white transition-colors duration-200 bg-transparent border-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
-              <div className="w-3 h-3 sm:w-4 sm:h-4 animate-spin rounded-full border border-white/20 border-t-transparent"></div>
+              <div className="w-4 h-4 sm:w-5 sm:h-5 animate-spin rounded-full border border-white/20 border-t-transparent"></div>
             ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3 sm:w-4 sm:h-4">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 sm:w-5 sm:h-5">
                 <path fillRule="evenodd" d="M3.75 12a.75.75 0 0 1 .75-.75h13.19l-5.47-5.47a.75.75 0 0 1 1.06-1.06l6.75 6.75a.75.75 0 0 1 0 1.06l-6.75 6.75a.75.75 0 1 1-1.06-1.06l5.47-5.47H4.5a.75.75 0 1-.75-.75Z" clipRule="evenodd" />
               </svg>
             )}

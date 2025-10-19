@@ -21,11 +21,24 @@ export type ChartData = {
   sources: string[];
 };
 
+export type UserRecord = {
+  user_id: string;
+  user_name: string;
+  count: number;
+};
+
 export type AppResponse = {
   success: boolean;
   data?: {
     sources: SourceRecord[];
   } | null;
+  message?: string;
+  error?: string;
+};
+
+export type UsersResponse = {
+  success: boolean;
+  data: UserRecord[];
   message?: string;
   error?: string;
 };
