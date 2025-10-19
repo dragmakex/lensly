@@ -6,13 +6,20 @@ type RouteContext = {
   params: Promise<{ miniappId: string }> | { miniappId: string };
 };
 
-interface UserData {
-  farcaster_id: string;
-  usage_count: number;
+interface UserEntry {
+  farcaster_id: string | null;
+  username?: string | null;
+  displayName?: string | null;
+  pfpUrl?: string | null;
+  sources_aggregate?: {
+    aggregate?: {
+      count?: number | null;
+    } | null;
+  } | null;
 }
 
 interface ApiResponse {
-  sources_usage: UserData[];
+  users?: UserEntry[] | null;
 }
 
 export async function GET(
@@ -47,23 +54,21 @@ export async function GET(
     const userData: ApiResponse = await response.json();
     console.log(`Top Users API Response Data:`, JSON.stringify(userData, null, 2));
 
-    // Process the user data - the structure is sources_usage with farcaster_id and usage_count
-    type UsageEntry = {
-      farcaster_id: string | number | null | undefined;
-      usage_count: number | null | undefined;
-    };
+    const users = Array.isArray(userData?.users) ? userData.users : [];
 
-    const sourcesUsage = Array.isArray(userData?.sources_usage)
-      ? (userData.sources_usage as UsageEntry[])
-      : [];
+    const processedUsers = users
+      .filter((user) => user?.farcaster_id)
+      .map((user) => {
+        const farcasterId = user?.farcaster_id ?? 'anonymous';
+        const displayLabel = user?.displayName || user?.username || `User ${farcasterId}`;
+        const usageCount = user?.sources_aggregate?.aggregate?.count ?? 0;
 
-    const processedUsers = sourcesUsage
-      .filter((user) => user.farcaster_id != null && user.farcaster_id !== '')
-      .map((user) => ({
-        user_id: String(user.farcaster_id),
-        user_name: `User ${user.farcaster_id}`,
-        count: user.usage_count ?? 0
-      }));
+        return {
+          user_id: String(farcasterId),
+          user_name: displayLabel,
+          count: usageCount
+        };
+      });
 
     // Sort by count (descending) and get top 5
     const topUsers = processedUsers
