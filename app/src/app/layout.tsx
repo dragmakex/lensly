@@ -16,6 +16,13 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://lensly.seraphim.zone"),
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    interactiveWidget: 'resizes-visual'
+  },
   title: {
     default: "Lensly",
     template: "%s | LENSLY",

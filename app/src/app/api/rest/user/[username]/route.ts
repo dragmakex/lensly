@@ -38,7 +38,6 @@ export async function GET(
   const { username } = await Promise.resolve(context.params);
 
   try {
-    console.log(`Fetching user data for username: ${username}`);
 
     // Step 1: Use Neynar API to get FID by username
     let fid: string | null = null;
@@ -54,11 +53,9 @@ export async function GET(
       const neynarApiKey = process.env.NEXT_NEYNAR_API_KEY;
 
       if (!neynarApiKey) {
-        console.error('Neynar API key not configured');
         throw new Error('Neynar API key not configured');
       }
 
-      console.log(`Calling Neynar API directly: ${neynarUrl}`);
 
       const neynarResponse = await fetch(neynarUrl, {
         method: 'GET',
@@ -69,30 +66,24 @@ export async function GET(
         next: { revalidate: 300 }, // Cache for 5 minutes
       });
 
-      console.log(`Neynar API Response Status: ${neynarResponse.status}`);
 
       if (neynarResponse.ok) {
         const neynarData = await neynarResponse.json();
-        console.log(`Neynar API Response Data:`, JSON.stringify(neynarData, null, 2));
 
         if (neynarData.user) {
           fid = neynarData.user.fid.toString();
           neynarUserData = neynarData.user;
-          console.log(`Found user ${username} with FID: ${fid}`);
         }
       } else {
         const errorText = await neynarResponse.text();
-        console.error(`Neynar API failed with status: ${neynarResponse.status}, error: ${errorText}`);
         // Continue to fallback search if Neynar fails
       }
     } catch (neynarError) {
-      console.error('Neynar API error:', neynarError);
       // Continue to fallback search if Neynar fails
     }
 
     // Step 2: If we got FID from Neynar, use our REST endpoint to get user data from our DB
     if (fid) {
-      console.log(`Querying our database with FID: ${fid} (not username: ${username})`);
       try {
         const userResponse = await fetch(
           `${API_BASE_URL}/api/rest/user/${encodeURIComponent(fid)}`,
@@ -105,11 +96,9 @@ export async function GET(
           }
         );
 
-        console.log(`User REST API Response Status: ${userResponse.status} ${userResponse.statusText}`);
 
         if (userResponse.ok) {
           const userData: ApiResponse = await userResponse.json();
-          console.log(`User REST API Response Data:`, JSON.stringify(userData, null, 2));
 
           if (userData.users && userData.users.length > 0) {
             const fullUserData = userData.users[0];
@@ -131,10 +120,8 @@ export async function GET(
               if (topAppsResponse.ok) {
                 const topAppsData = await topAppsResponse.json();
                 topApps = topAppsData.users || [];
-                console.log(`Top apps for user ${username} (FID: ${fid}):`, topApps);
               }
             } catch (topAppsError) {
-              console.error('Failed to fetch top apps:', topAppsError);
               // Continue without top apps data
             }
 
@@ -156,7 +143,6 @@ export async function GET(
             });
           }
         } else {
-          console.log(`No user data found in database for FID: ${fid}`);
           // User exists on Farcaster but not in our database - return Neynar data only
           return NextResponse.json({
             success: true,
@@ -176,13 +162,11 @@ export async function GET(
           });
         }
       } catch (dbError) {
-        console.error('Database API error:', dbError);
         // Continue to fallback if DB query fails
       }
     }
 
     // Step 3: Fallback - try to find user directly in our database via GraphQL
-    console.log(`Fallback: Searching for user ${username} directly in database`);
     const findUserQuery = {
       query: `
         query FindUserByUsername($username: String!) {
@@ -266,8 +250,6 @@ export async function GET(
     }, { status: 404 });
 
   } catch (error) {
-    console.error('User API Error:', error);
-    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace available');
 
     return NextResponse.json(
       {

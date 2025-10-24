@@ -27,10 +27,8 @@ export async function GET(
   const { username } = await params;
 
   try {
-    console.log(`Fetching Farcaster user data for username: ${username}`);
 
     if (!NEYNAR_API_KEY) {
-      console.error('Neynar API key not configured');
       return NextResponse.json(
         {
           success: false,
@@ -53,12 +51,8 @@ export async function GET(
       next: { revalidate: 300 }, // Cache for 5 minutes
     });
 
-    console.log(`Neynar API Response Status: ${response.status} ${response.statusText}`);
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`Neynar API Error Response: ${errorText}`);
-
       if (response.status === 404) {
         return NextResponse.json(
           {
@@ -74,7 +68,6 @@ export async function GET(
     }
 
     const neynarData: NeynarResponse = await response.json();
-    console.log(`Neynar API Response Data:`, JSON.stringify(neynarData, null, 2));
 
     return NextResponse.json({
       success: true,
@@ -93,8 +86,6 @@ export async function GET(
     });
 
   } catch (error) {
-    console.error('Neynar API Error:', error);
-    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace available');
 
     return NextResponse.json(
       {

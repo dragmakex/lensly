@@ -3,37 +3,43 @@
 import { TrendingUp } from "lucide-react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 
+const LINE_COLOR = '#8B5CF6';
+const CONTAINER_STYLE = { pointerEvents: 'none', userSelect: 'none' } as const;
+const CHART_MARGIN = { top: 5, right: 30, left: 20, bottom: 5 };
+
 interface MiniAppUsageChartProps {
   title: string;
   description: string;
   data: Array<{ date: string; count: number }> | undefined;
 }
 
+const CustomTooltip = ({ active, payload }: {
+  active?: boolean;
+  payload?: Array<{ value: number; payload: { date: string } }>;
+}) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="liquid-glass rounded-lg px-3 py-2 text-white border border-white/30 select-none pointer-events-none">
+        <p className="text-xs font-medium">{payload[0].payload.date}</p>
+        <p className="text-xs opacity-80">{payload[0].value} uses</p>
+      </div>
+    );
+  }
+  return null;
+};
+
 export default function MiniAppUsageChart({
   title,
   description,
   data
 }: MiniAppUsageChartProps) {
-  // Purple color for line
-  const lineColor = '#8B5CF6'; // Purple-500
-
-  // Custom tooltip
-  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ value: number; payload: { date: string } }> }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="liquid-glass rounded-lg px-3 py-2 text-white border border-white/30 select-none pointer-events-none">
-          <p className="text-xs font-medium">{payload[0].payload.date}</p>
-          <p className="text-xs opacity-80">{payload[0].value} uses</p>
-        </div>
-      );
-    }
-    return null;
-  };
+  const sortedData = data ? [...data].sort((a, b) =>
+    new Date(a.date).getTime() - new Date(b.date).getTime()
+  ) : [];
 
   return (
     <div className="liquid-glass rounded-2xl p-4 sm:p-6 text-white relative overflow-hidden h-full flex flex-col select-none pointer-events-none">
       <div className="relative z-10 flex-1 flex flex-col">
-        {/* Header */}
         <div className="flex items-center gap-3 mb-4 sm:mb-6">
           <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm border border-white/30">
             <TrendingUp className="w-5 h-5" />
@@ -44,19 +50,10 @@ export default function MiniAppUsageChart({
           </div>
         </div>
 
-        {/* Chart */}
         <div className="flex-1 w-full flex items-center justify-center min-h-0">
-          {data && data.length > 0 ? (
-            <ResponsiveContainer width="100%" height="100%" style={{ pointerEvents: 'none', userSelect: 'none' }}>
-              <LineChart
-                data={data}
-                margin={{
-                  top: 5,
-                  right: 30,
-                  left: 20,
-                  bottom: 5,
-                }}
-              >
+          {sortedData?.length ? (
+            <ResponsiveContainer width="100%" height="100%" style={CONTAINER_STYLE}>
+              <LineChart data={sortedData} margin={CHART_MARGIN}>
                 <CartesianGrid
                   strokeDasharray="3 3"
                   stroke="rgba(255,255,255,0.1)"
@@ -79,7 +76,7 @@ export default function MiniAppUsageChart({
                 <Line
                   type="natural"
                   dataKey="count"
-                  stroke={lineColor}
+                  stroke={LINE_COLOR}
                   strokeWidth={2}
                   dot={false}
                   activeDot={false}
@@ -95,13 +92,12 @@ export default function MiniAppUsageChart({
           )}
         </div>
 
-        {/* Footer */}
         <div className="mt-2 pt-2 border-t border-white/20">
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1">
               <div className="h-2 w-2 bg-purple-500 rounded-full"></div>
               <span className="text-xs text-white/60">
-                {data?.length || 0} days tracked
+                {sortedData.length} days tracked
               </span>
             </div>
             <div className="h-2 w-2 bg-white/20 rounded-full ml-auto"></div>

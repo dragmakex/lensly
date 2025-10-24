@@ -4,11 +4,35 @@ import { Users } from "lucide-react";
 import { Bar, BarChart, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import type { TopUser } from "@/types/charts";
 
+const CHART_COLORS = [
+  '#8B5CF6', '#A78BFA', '#C4B5FD', '#DDD6FE', '#6D28D9'
+] as const;
+
+const CONTAINER_STYLE = { pointerEvents: 'none', userSelect: 'none' } as const;
+const TOP_USERS_COUNT = 5;
+const MIN_MARGIN = 25;
+const CHARS_PER_PIXEL = 5;
+
 type ChartDataPoint = {
   user: string;
   visitors: number;
   fill: string;
   originalData: TopUser;
+};
+
+const formatUserName = (item: TopUser): string => {
+  if (item.user_id === 'anonymous') return 'Anonymous';
+
+  const userName = item.user_name;
+  if (userName.includes('User') && /^\d+$/.test(userName.replace('User ', ''))) {
+    return `FID ${userName.replace('User ', '')}`;
+  }
+
+  if (userName.includes('.eth') || userName.includes('.farcaster')) {
+    return userName.replace(/.eth|.farcaster/, '');
+  }
+
+  return userName;
 };
 
 interface TopUsersBarChartProps {
@@ -22,37 +46,20 @@ export default function TopUsersBarChart({
   description,
   data
 }: TopUsersBarChartProps) {
-  // Purple color palette
-  const purpleColors = [
-    '#8B5CF6', // Purple-500
-    '#A78BFA', // Purple-400
-    '#C4B5FD', // Purple-300
-    '#DDD6FE', // Purple-200
-    '#6D28D9', // Purple-600
-  ];
-
-  // Prepare chart data with fill colors
-  const chartData: ChartDataPoint[] = data?.slice(0, 5).map((item, index) => ({
-    user: item.user_id === 'anonymous' ? 'Anonymous' :
-          item.user_name.includes('User') && /^\d+$/.test(item.user_name.replace('User ', ''))
-            ? `FID ${item.user_name.replace('User ', '')}` // Format as "FID 12345"
-            : item.user_name.includes('.eth') || item.user_name.includes('.farcaster')
-              ? item.user_name.replace(/.eth|.farcaster/, '')
-              : item.user_name,
+  const chartData: ChartDataPoint[] = data?.slice(0, TOP_USERS_COUNT).map((item, index) => ({
+    user: formatUserName(item),
     visitors: item.count,
-    fill: purpleColors[index % purpleColors.length],
-    originalData: item // Keep original data for tooltip
+    fill: CHART_COLORS[index % CHART_COLORS.length],
+    originalData: item
   })) || [];
 
-  // Calculate left margin based on longest name
-  const maxNameLength = chartData.length > 0 ? Math.max(...chartData.map(d => d.user.length)) : 0;
-  const leftMargin = Math.max(25, maxNameLength * 5); // Min 25px, plus 5px per character
+  const maxNameLength = Math.max(0, ...chartData.map(d => d.user.length));
+  const leftMargin = Math.max(MIN_MARGIN, maxNameLength * CHARS_PER_PIXEL);
 
   
   return (
     <div className="liquid-glass rounded-2xl p-4 sm:p-6 text-white relative overflow-hidden h-full flex flex-col select-none pointer-events-none">
       <div className="relative z-10 flex-1 flex flex-col">
-        {/* Header */}
         <div className="flex items-center gap-3 mb-4 sm:mb-6">
           <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm border border-white/30">
             <Users className="w-5 h-5" />
@@ -63,10 +70,9 @@ export default function TopUsersBarChart({
           </div>
         </div>
 
-        {/* Chart */}
         <div className="flex-1 w-full flex items-center justify-center min-h-0">
           {chartData.length > 0 ? (
-            <ResponsiveContainer width="100%" height="100%" style={{ pointerEvents: 'none', userSelect: 'none' }}>
+            <ResponsiveContainer width="100%" height="100%" style={CONTAINER_STYLE}>
               <BarChart
                 data={chartData}
                 layout="vertical"
@@ -77,11 +83,7 @@ export default function TopUsersBarChart({
                   bottom: 0
                 }}
               >
-                <XAxis
-                  dataKey="visitors"
-                  type="number"
-                  hide
-                />
+                <XAxis dataKey="visitors" type="number" hide />
                 <YAxis
                   dataKey="user"
                   type="category"
@@ -94,7 +96,7 @@ export default function TopUsersBarChart({
                 <Bar
                   dataKey="visitors"
                   radius={5}
-                  fill="#8B5CF6"
+                  fill={CHART_COLORS[0]}
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -107,7 +109,6 @@ export default function TopUsersBarChart({
           )}
         </div>
 
-        {/* Footer */}
         <div className="mt-2 pt-2 border-t border-white/20">
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1">

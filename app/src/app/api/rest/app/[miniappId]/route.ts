@@ -16,7 +16,6 @@ export async function GET(
   const offset = searchParams.get('offset') || '0';
 
   try {
-    console.log(`Fetching data for miniappId: ${miniappId}, limit: ${limit}, offset: ${offset}`);
 
     const response = await fetch(
       `${API_BASE_URL}/api/rest/app/${encodeURIComponent(miniappId)}?limit=${limit}&offset=${offset}`,
@@ -29,16 +28,13 @@ export async function GET(
       }
     );
 
-    console.log(`API Response Status: ${response.status} ${response.statusText}`);
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`API Error Response: ${errorText}`);
       throw new Error(`API request failed: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
-    console.log(`API Response Data:`, JSON.stringify(data, null, 2));
 
     return NextResponse.json({
       success: true,
@@ -47,8 +43,6 @@ export async function GET(
     });
 
   } catch (error) {
-    console.error('App API Error:', error);
-    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace available');
     return NextResponse.json(
       {
         success: false,

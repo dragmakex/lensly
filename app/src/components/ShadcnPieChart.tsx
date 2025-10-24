@@ -4,6 +4,79 @@ import { Pie, PieChart, ResponsiveContainer, Cell, Legend } from "recharts";
 import type { LegendPayload } from "recharts";
 import type { PieDatum } from "@/types/charts";
 
+const CHART_COLORS = [
+  '#8B5CF6', '#A78BFA', '#C4B5FD', '#DDD6FE', '#6D28D9'
+] as const;
+
+const CONTAINER_STYLE = { pointerEvents: 'none', userSelect: 'none' } as const;
+const RADIAN = Math.PI / 180;
+const LABEL_RADIUS_OFFSET = 30;
+const TEXT_OFFSET = 4;
+const MIN_PERCENTAGE_DISPLAY = 5;
+
+type LabelProps = {
+  cx?: number | string;
+  cy?: number | string;
+  midAngle?: number;
+  innerRadius?: number | string;
+  outerRadius?: number | string;
+  percent?: number;
+};
+
+const renderCustomizedLabel = ({
+  cx,
+  cy,
+  midAngle,
+  outerRadius,
+  percent
+}: LabelProps) => {
+  if (!cx || !cy || midAngle === undefined || !outerRadius) return null;
+
+  const numericCx = typeof cx === 'number' ? cx : parseFloat(cx);
+  const numericCy = typeof cy === 'number' ? cy : parseFloat(cy);
+  const numericOuterRadius = typeof outerRadius === 'number' ? outerRadius : parseFloat(outerRadius);
+
+  if (Number.isNaN(numericCx) || Number.isNaN(numericCy) || Number.isNaN(numericOuterRadius)) {
+    return null;
+  }
+
+  const displayPercent = Math.round((percent ?? 0) * 100);
+  if (displayPercent < MIN_PERCENTAGE_DISPLAY) return null;
+
+  const labelRadius = numericOuterRadius + LABEL_RADIUS_OFFSET;
+  const startX = numericCx + numericOuterRadius * Math.cos(-midAngle * RADIAN);
+  const startY = numericCy + numericOuterRadius * Math.sin(-midAngle * RADIAN);
+  const endX = numericCx + labelRadius * Math.cos(-midAngle * RADIAN);
+  const endY = numericCy + labelRadius * Math.sin(-midAngle * RADIAN);
+
+  const isRight = endX > numericCx;
+  const textX = endX + (isRight ? TEXT_OFFSET : -TEXT_OFFSET);
+  const textAnchor = isRight ? 'start' : 'end';
+
+  return (
+    <g>
+      <line
+        x1={startX}
+        y1={startY}
+        x2={endX}
+        y2={endY}
+        stroke="rgba(255,255,255,0.6)"
+        strokeWidth={1}
+      />
+      <text
+        x={textX}
+        y={endY}
+        fill="white"
+        textAnchor={textAnchor}
+        dominantBaseline="middle"
+        className="text-xs font-medium"
+      >
+        {`${displayPercent}%`}
+      </text>
+    </g>
+  );
+};
+
 interface ShadcnPieChartProps {
   title: string;
   description: string;
@@ -15,117 +88,12 @@ export default function ShadcnPieChart({
   description,
   data
 }: ShadcnPieChartProps) {
-  // Purple color palette
-  const purpleColors = [
-    '#8B5CF6', // Purple-500
-    '#A78BFA', // Purple-400
-    '#C4B5FD', // Purple-300
-    '#DDD6FE', // Purple-200
-    '#6D28D9', // Purple-600
-  ];
-
-  
-  type LabelProps = {
-    cx?: number | string;
-    cy?: number | string;
-    midAngle?: number;
-    innerRadius?: number | string;
-    outerRadius?: number | string;
-    percent?: number;
-  };
-
-  const renderCustomizedLabel = ({
-    cx,
-    cy,
-    midAngle,
-    innerRadius,
-    outerRadius,
-    percent
-  }: LabelProps) => {
-    const RADIAN = Math.PI / 180;
-    if (
-      cx === undefined ||
-      cy === undefined ||
-      midAngle === undefined ||
-      innerRadius === undefined ||
-      outerRadius === undefined
-    ) {
-      return null;
-    }
-
-    const numericCx = typeof cx === 'number' ? cx : parseFloat(cx);
-    const numericCy = typeof cy === 'number' ? cy : parseFloat(cy);
-    const numericOuterRadius = typeof outerRadius === 'number' ? outerRadius : parseFloat(outerRadius);
-
-    if (
-      Number.isNaN(numericCx) ||
-      Number.isNaN(numericCy) ||
-      Number.isNaN(numericOuterRadius)
-    ) {
-      return null;
-    }
-
-    const displayPercent = Math.round((percent ?? 0) * 100);
-
-    if (displayPercent < 5) return null;
-
-    // Calculate positions for leader line and label
-    const labelRadius = numericOuterRadius + 30; // Position for label
-
-    const startX = numericCx + numericOuterRadius * Math.cos(-midAngle * RADIAN);
-    const startY = numericCy + numericOuterRadius * Math.sin(-midAngle * RADIAN);
-
-    const endX = numericCx + labelRadius * Math.cos(-midAngle * RADIAN);
-    const endY = numericCy + labelRadius * Math.sin(-midAngle * RADIAN);
-
-    // Adjust text position slightly based on direction to ensure it's at the line end
-  let textX = endX;
-  const textY = endY;
-  let textAnchor: 'start' | 'end' = 'end';
-
-    if (endX > numericCx) {
-      // Text should be to the right of the line end
-      textX = endX + 4; // Add small offset
-      textAnchor = 'start';
-    } else {
-      // Text should be to the left of the line end
-      textX = endX - 4; // Add small offset
-      textAnchor = 'end';
-    }
-
-    return (
-      <g>
-        {/* Leader line */}
-        <line
-          x1={startX}
-          y1={startY}
-          x2={endX}
-          y2={endY}
-          stroke="rgba(255,255,255,0.6)"
-          strokeWidth={1}
-        />
-        {/* Percentage label at end of line */}
-        <text
-          x={textX}
-          y={textY}
-          fill="white"
-          textAnchor={textAnchor}
-          dominantBaseline="middle"
-          className="text-xs font-medium"
-        >
-          {`${displayPercent}%`}
-        </text>
-      </g>
-    );
-  };
-
   const chartData = data ?? [];
   const totalEntries = chartData.reduce((sum, item) => sum + item.count, 0);
 
   return (
     <div className="liquid-glass rounded-2xl p-4 sm:p-6 text-white relative overflow-hidden h-full flex flex-col select-none pointer-events-none">
       <div className="relative z-10 flex-1 flex flex-col">
-        {/* Header */}
         <div className="flex items-center gap-3 mb-4 sm:mb-6">
           <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm border border-white/30">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
@@ -139,10 +107,9 @@ export default function ShadcnPieChart({
           </div>
         </div>
 
-        {/* Chart */}
         <div className="flex-1 w-full flex items-center justify-center">
           {chartData.length > 0 ? (
-            <ResponsiveContainer width="100%" height="100%" style={{ pointerEvents: 'none', userSelect: 'none' }}>
+            <ResponsiveContainer width="100%" height="100%" style={CONTAINER_STYLE}>
               <PieChart>
                 <Pie
                   data={chartData}
@@ -159,11 +126,11 @@ export default function ShadcnPieChart({
                   {chartData.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
-                      fill={purpleColors[index % purpleColors.length]}
+                      fill={CHART_COLORS[index % CHART_COLORS.length]}
                     />
                   ))}
                 </Pie>
-                  <Legend
+                <Legend
                   verticalAlign="bottom"
                   height={36}
                   wrapperStyle={{
@@ -186,7 +153,6 @@ export default function ShadcnPieChart({
           )}
         </div>
 
-        {/* Footer - Keeping your subline */}
         <div className="mt-2 pt-2 border-t border-white/20 text-center">
           <p className="text-xs opacity-70">
             {chartData.length} source types • {totalEntries.toLocaleString()} total entries

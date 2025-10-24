@@ -63,7 +63,7 @@ export default function LiquidGlassSearchBar({
         >
           <input
             type="text"
-            placeholder="Try typing 'lensly' or your Farcaster username!"
+            placeholder="Try 'lensly' or an username..."
             value={searchValue}
             onChange={(e) => onSearchChange(e.target.value)}
             onKeyDown={(e) => {

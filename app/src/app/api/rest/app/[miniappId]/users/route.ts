@@ -6,20 +6,20 @@ type RouteContext = {
   params: Promise<{ miniappId: string }> | { miniappId: string };
 };
 
-interface UserEntry {
+interface UserData {
   farcaster_id: string | null;
-  username?: string | null;
-  displayName?: string | null;
-  pfpUrl?: string | null;
-  sources_aggregate?: {
-    aggregate?: {
-      count?: number | null;
-    } | null;
-  } | null;
+  username: string | null;
+  displayName: string | null;
+  pfpUrl: string | null;
+  sources_aggregate: {
+    aggregate: {
+      count: number;
+    };
+  };
 }
 
 interface ApiResponse {
-  users?: UserEntry[] | null;
+  users: UserData[];
 }
 
 export async function GET(
@@ -29,7 +29,6 @@ export async function GET(
   const { miniappId } = await Promise.resolve(context.params);
 
   try {
-    console.log(`Fetching top users for miniappId: ${miniappId}`);
 
     // Use the correct top-users endpoint
     const response = await fetch(
@@ -43,39 +42,28 @@ export async function GET(
       }
     );
 
-    console.log(`Top Users API Response Status: ${response.status} ${response.statusText}`);
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`Top Users API Error Response: ${errorText}`);
       throw new Error(`API request failed: ${response.status} ${response.statusText}`);
     }
 
     const userData: ApiResponse = await response.json();
-    console.log(`Top Users API Response Data:`, JSON.stringify(userData, null, 2));
 
-    const users = Array.isArray(userData?.users) ? userData.users : [];
-
-    const processedUsers = users
-      .filter((user) => user?.farcaster_id)
-      .map((user) => {
-        const farcasterId = user?.farcaster_id ?? 'anonymous';
-        const displayLabel = user?.displayName || user?.username || `User ${farcasterId}`;
-        const usageCount = user?.sources_aggregate?.aggregate?.count ?? 0;
-
-        return {
-          user_id: String(farcasterId),
-          user_name: displayLabel,
-          count: usageCount
-        };
-      });
+    // Process the user data from the new API structure
+    const processedUsers = userData.users
+      .filter((user) => user.farcaster_id != null && user.farcaster_id !== '')
+      .map((user) => ({
+        user_id: user.farcaster_id!,
+        user_name: user.displayName || user.username || user.farcaster_id!,
+        count: user.sources_aggregate?.aggregate?.count ?? 0
+      }));
 
     // Sort by count (descending) and get top 5
     const topUsers = processedUsers
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
 
-    console.log(`Top ${topUsers.length} users:`, topUsers);
 
     return NextResponse.json({
       success: true,
@@ -84,8 +72,6 @@ export async function GET(
     });
 
   } catch (error) {
-    console.error('Top Users API Error:', error);
-    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace available');
 
     return NextResponse.json(
       {

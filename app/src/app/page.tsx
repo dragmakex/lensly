@@ -26,14 +26,12 @@ export default function Home() {
   const [searchType, setSearchType] = useState<'miniapp' | 'user' | null>(null);
   const [userFavoriteApps, setUserFavoriteApps] = useState<Array<{ miniapp_id: string; count: number }> | null>(null);
   const [miniAppUsage, setMiniAppUsage] = useState<Array<{ date: string; count: number }> | null>(null);
-  const [clientTypeData, setClientTypeData] = useState<Array<{ source: string; count: number; percentage: number }> | null>(null);
-  const [platformTypeData, setPlatformTypeData] = useState<Array<{ source: string; count: number; percentage: number }> | null>(null);
+  const [clientTypeData, setClientTypeData] = useState<PieDatum[] | undefined>(undefined);
+  const [platformTypeData, setPlatformTypeData] = useState<PieDatum[] | undefined>(undefined);
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
-  // Farcaster Mini App Integration
   useEffect(() => {
     const load = async () => {
-      const frameContext = await sdk.context;
-      console.log("Farcaster Mini App Context:", frameContext);
+      await sdk.context;
       sdk.actions.ready();
     };
     if (sdk && !isSDKLoaded) {
@@ -64,8 +62,8 @@ export default function Home() {
     setSearchType(null);
     setUserFavoriteApps(null);
     setMiniAppUsage(null);
-    setClientTypeData(null);
-    setPlatformTypeData(null);
+    setClientTypeData(undefined);
+    setPlatformTypeData(undefined);
     setSearchValue("");
   };
 
@@ -84,13 +82,12 @@ export default function Home() {
     setUserData(null);
     setUserFavoriteApps(null);
     setMiniAppUsage(null);
-    setClientTypeData(null);
-    setPlatformTypeData(null);
+    setClientTypeData(undefined);
+    setPlatformTypeData(undefined);
 
     try {
       // First try miniapp ID endpoint
-      console.log(`Trying miniapp ID: ${sanitizedMiniappId}`);
-      const miniappResponse = await fetch(`/api/rest/app/${encodeURIComponent(sanitizedMiniappId)}`, {
+        const miniappResponse = await fetch(`/api/rest/app/${encodeURIComponent(sanitizedMiniappId)}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -99,8 +96,7 @@ export default function Home() {
 
       if (miniappResponse.ok) {
         const data: AppResponse = await miniappResponse.json();
-        console.log('Miniapp API Response:', data);
-
+  
         if (data.success && data.data && data.data.sources && data.data.sources.length > 0) {
           setResult("success");
           setSearchType('miniapp');
@@ -111,8 +107,7 @@ export default function Home() {
       }
 
       // If miniapp ID search failed, try username endpoint
-      console.log(`Trying username: ${username}`);
-      const userResponse = await fetch(`/api/rest/user/${encodeURIComponent(username)}`, {
+        const userResponse = await fetch(`/api/rest/user/${encodeURIComponent(username)}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -121,8 +116,7 @@ export default function Home() {
 
       if (userResponse.ok) {
         const userData = await userResponse.json();
-        console.log('User API Response:', userData);
-
+  
         if (userData.success && userData.data && userData.data.user) {
           setResult("success");
           setSearchType('user');
@@ -133,12 +127,10 @@ export default function Home() {
       }
 
       // If both searches failed, show error
-      console.log('No results found for either miniapp ID or username');
-      setResult("error");
+        setResult("error");
 
     } catch (error) {
-      console.error('Search error:', error);
-      setResult("error");
+        setResult("error");
     } finally {
       setIsLoading(false);
     }
@@ -258,8 +250,7 @@ export default function Home() {
         setUserData([]);
       }
     } catch (userError) {
-      console.error('Users fetch error:', userError);
-      setUserData([]);
+        setUserData([]);
     }
   };
 
@@ -301,8 +292,7 @@ export default function Home() {
         .slice(0, 5); // Top 5 favorite apps
 
       setUserFavoriteApps(favoriteApps);
-      console.log('User favorite miniapps:', favoriteApps);
-
+    
       // Generate miniapp usage data from user's sources
       const usageByDate: Record<string, number> = {};
 
@@ -329,12 +319,10 @@ export default function Home() {
       }));
 
       setMiniAppUsage(usageData);
-      console.log('User daily usage:', usageData);
-    } else {
+      } else {
       setUserFavoriteApps([]);
       setMiniAppUsage([]);
-      console.log('No sources found for user');
-    }
+      }
   };
 
   return (
