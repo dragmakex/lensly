@@ -22,9 +22,9 @@ interface NeynarResponse {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ username: string }> }
+  context: { params: Promise<{ username: string }> }
 ) {
-  const { username } = await params;
+  const { username } = await context.params;
 
   try {
 
@@ -48,7 +48,7 @@ export async function GET(
         'x-api-key': NEYNAR_API_KEY,
         'Content-Type': 'application/json',
       },
-      next: { revalidate: 300 }, // Cache for 5 minutes
+      next: { revalidate: 60 }, // Cache for 1 minute to reduce 429 errors
     });
 
 

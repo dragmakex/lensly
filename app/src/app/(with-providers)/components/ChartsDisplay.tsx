@@ -1,12 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import ShadcnPieChart from "./ShadcnPieChart";
-import ShadcnAreaChart from "./ShadcnAreaChart";
-import TopUsersBarChart from "./TopUsersBarChart";
-import UserFavoriteAppsChart from "./UserFavoriteAppsChart";
-import MiniAppUsageChart from "./MiniAppUsageChart";
-import LiquidGlassButton from "./LiquidGlassButton";
+import ShadcnPieChart from "@/components/ShadcnPieChart";
+import ShadcnAreaChart from "@/components/ShadcnAreaChart";
+import TopUsersBarChart from "@/components/TopUsersBarChart";
+import UserFavoriteAppsChart from "@/components/UserFavoriteAppsChart";
+import MiniAppUsageChart from "@/components/MiniAppUsageChart";
+import LiquidGlassButton from "@/components/LiquidGlassButton";
+import DonationComponent from "@/components/DonationComponent";
 import { ArrowLeft } from "lucide-react";
 import type { ChartData, TopUser, PieDatum } from "@/types/charts";
 
@@ -45,66 +46,76 @@ interface ChartsDisplayProps {
 
 export default function ChartsDisplay({ chartData, userData, onBack, searchType, userFavoriteApps, miniAppUsage, clientTypeData, platformTypeData }: ChartsDisplayProps) {
   const renderMiniappCharts = () => (
-    <div className="flex flex-col xl:flex-row flex-wrap gap-6 items-center justify-center min-h-full">
-      <motion.div
-        {...CHART_ANIMATION_CONFIG}
-        transition={{ ...CHART_ANIMATION_CONFIG.transition, delay: 0.3 }}
-        className={`${CHART_DIMENSIONS.bar.width} ${CHART_DIMENSIONS.bar.height} flex-shrink-0 select-none pointer-events-none`}
-      >
-        <TopUsersBarChart
-          title="Top Farcaster IDs"
-          description="Most frequent FIDs by source data"
-          data={userData ?? undefined}
-        />
-      </motion.div>
+    <div className="flex flex-col items-center justify-center min-h-full">
+      <div className="flex flex-col xl:flex-row flex-wrap gap-6 items-center justify-center mb-6">
+        <motion.div
+          {...CHART_ANIMATION_CONFIG}
+          transition={{ ...CHART_ANIMATION_CONFIG.transition, delay: 0.3 }}
+          className={`${CHART_DIMENSIONS.bar.width} ${CHART_DIMENSIONS.bar.height} flex-shrink-0 select-none pointer-events-none`}
+        >
+          <TopUsersBarChart
+            title="Top Farcaster IDs"
+            description="Most frequent FIDs by source data"
+            data={userData ?? undefined}
+          />
+        </motion.div>
+
+        <motion.div
+          {...CHART_ANIMATION_CONFIG}
+          transition={{ ...CHART_ANIMATION_CONFIG.transition, delay: 0.5 }}
+          className={`${CHART_DIMENSIONS.pie.width} ${CHART_DIMENSIONS.pie.height} flex-shrink-0 select-none pointer-events-none`}
+        >
+          <ShadcnPieChart
+            title="Source Distribution"
+            description="Percentage by source type"
+            data={chartData?.pieData}
+          />
+        </motion.div>
+
+        <motion.div
+          {...CHART_ANIMATION_CONFIG}
+          transition={{ ...CHART_ANIMATION_CONFIG.transition, delay: 0.7 }}
+          className={`${CHART_DIMENSIONS.pie.width} ${CHART_DIMENSIONS.pie.height} flex-shrink-0 select-none pointer-events-none`}
+        >
+          <ShadcnPieChart
+            title="Client Type"
+            description="Base vs Farcaster access"
+            data={clientTypeData}
+          />
+        </motion.div>
+
+        <motion.div
+          {...CHART_ANIMATION_CONFIG}
+          transition={{ ...CHART_ANIMATION_CONFIG.transition, delay: 0.9 }}
+          className={`${CHART_DIMENSIONS.pie.width} ${CHART_DIMENSIONS.pie.height} flex-shrink-0 select-none pointer-events-none`}
+        >
+          <ShadcnPieChart
+            title="Platform Type"
+            description="Web vs Mobile usage"
+            data={platformTypeData}
+          />
+        </motion.div>
+
+        <motion.div
+          {...CHART_ANIMATION_CONFIG}
+          transition={{ ...CHART_ANIMATION_CONFIG.transition, delay: 1.1 }}
+          className={`${CHART_DIMENSIONS.area.width} ${CHART_DIMENSIONS.area.height} flex-shrink-0 select-none pointer-events-none`}
+        >
+          <ShadcnAreaChart
+            title="Source Trends"
+            description="Percentage changes over time"
+            data={chartData?.areaData}
+            sources={chartData?.sources || []}
+          />
+        </motion.div>
+      </div>
 
       <motion.div
         {...CHART_ANIMATION_CONFIG}
-        transition={{ ...CHART_ANIMATION_CONFIG.transition, delay: 0.5 }}
-        className={`${CHART_DIMENSIONS.pie.width} ${CHART_DIMENSIONS.pie.height} flex-shrink-0 select-none pointer-events-none`}
+        transition={{ ...CHART_ANIMATION_CONFIG.transition, delay: 1.3 }}
+        className="w-full max-w-md"
       >
-        <ShadcnPieChart
-          title="Source Distribution"
-          description="Percentage by source type"
-          data={chartData?.pieData}
-        />
-      </motion.div>
-
-      <motion.div
-        {...CHART_ANIMATION_CONFIG}
-        transition={{ ...CHART_ANIMATION_CONFIG.transition, delay: 0.7 }}
-        className={`${CHART_DIMENSIONS.pie.width} ${CHART_DIMENSIONS.pie.height} flex-shrink-0 select-none pointer-events-none`}
-      >
-        <ShadcnPieChart
-          title="Client Type"
-          description="Base vs Farcaster access"
-          data={clientTypeData}
-        />
-      </motion.div>
-
-      <motion.div
-        {...CHART_ANIMATION_CONFIG}
-        transition={{ ...CHART_ANIMATION_CONFIG.transition, delay: 0.9 }}
-        className={`${CHART_DIMENSIONS.pie.width} ${CHART_DIMENSIONS.pie.height} flex-shrink-0 select-none pointer-events-none`}
-      >
-        <ShadcnPieChart
-          title="Platform Type"
-          description="Web vs Mobile usage"
-          data={platformTypeData}
-        />
-      </motion.div>
-
-      <motion.div
-        {...CHART_ANIMATION_CONFIG}
-        transition={{ ...CHART_ANIMATION_CONFIG.transition, delay: 1.1 }}
-        className={`${CHART_DIMENSIONS.area.width} ${CHART_DIMENSIONS.area.height} flex-shrink-0 select-none pointer-events-none`}
-      >
-        <ShadcnAreaChart
-          title="Source Trends"
-          description="Percentage changes over time"
-          data={chartData?.areaData}
-          sources={chartData?.sources || []}
-        />
+        <DonationComponent topUsers={userData} />
       </motion.div>
     </div>
   );

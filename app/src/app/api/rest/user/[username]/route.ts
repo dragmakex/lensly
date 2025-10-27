@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 const API_BASE_URL = 'https://api-slop.seraphim.zone';
 
 type RouteContext = {
-  params: Promise<{ username: string }> | { username: string };
+  params: Promise<{ username: string }>;
 };
 
 interface UserData {
@@ -75,11 +75,11 @@ export async function GET(
           neynarUserData = neynarData.user;
         }
       } else {
-        const errorText = await neynarResponse.text();
         // Continue to fallback search if Neynar fails
       }
     } catch (neynarError) {
       // Continue to fallback search if Neynar fails
+      console.error('Neynar API error:', neynarError);
     }
 
     // Step 2: If we got FID from Neynar, use our REST endpoint to get user data from our DB
@@ -123,6 +123,7 @@ export async function GET(
               }
             } catch (topAppsError) {
               // Continue without top apps data
+              console.error('Top apps error:', topAppsError);
             }
 
             return NextResponse.json({
@@ -163,6 +164,7 @@ export async function GET(
         }
       } catch (dbError) {
         // Continue to fallback if DB query fails
+        console.error('DB error:', dbError);
       }
     }
 

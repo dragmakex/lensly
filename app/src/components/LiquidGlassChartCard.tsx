@@ -29,27 +29,28 @@ const APPLE_COLORS = [
   '#FFCC00', // Yellow
 ];
 
+type TooltipContentProps = {
+  active?: boolean;
+  payload?: Array<{ value: number; name: string; payload: PieDatum }>;
+};
+
+const CustomTooltip = ({ active, payload }: TooltipContentProps) => {
+  if (active && payload && payload[0]) {
+    return (
+      <div className="liquid-glass rounded-lg px-3 py-2 text-white text-xs">
+        <p className="font-medium">{payload[0].name}</p>
+        <p>{payload[0].value} ({payload[0].payload.percentage}%)</p>
+      </div>
+    );
+  }
+  return null;
+};
+
 export default function LiquidGlassChartCard({
   title,
   data,
   icon
 }: LiquidGlassChartCardProps) {
-  type TooltipContentProps = {
-    active?: boolean;
-    payload?: Array<{ value: number; name: string; payload: PieDatum }>;
-  };
-
-  const CustomTooltip = ({ active, payload }: TooltipContentProps) => {
-    if (active && payload && payload[0]) {
-      return (
-        <div className="liquid-glass rounded-lg px-3 py-2 text-white text-xs">
-          <p className="font-medium">{payload[0].name}</p>
-          <p>{payload[0].value} ({payload[0].payload.percentage}%)</p>
-        </div>
-      );
-    }
-    return null;
-  };
 
   type LabelProps = {
     cx?: number | string;

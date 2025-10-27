@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 const API_BASE_URL = 'https://api-slop.seraphim.zone';
 
 type RouteContext = {
-  params: Promise<{ miniappId: string }> | { miniappId: string };
+  params: Promise<{ miniappId: string }>;
 };
 
 export async function GET(
@@ -30,7 +30,6 @@ export async function GET(
 
 
     if (!response.ok) {
-      const errorText = await response.text();
       throw new Error(`API request failed: ${response.status} ${response.statusText}`);
     }
 

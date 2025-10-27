@@ -2,10 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import sdk from "@farcaster/miniapp-sdk";
 import LandingScreen from "@/components/LandingScreen";
 import LiquidGlassSearchBar from "@/components/LiquidGlassSearchBar";
-import ChartsDisplay from "@/components/ChartsDisplay";
+import ChartsDisplay from "./components/ChartsDisplay";
 import type {
   ChartData,
   AppResponse,
@@ -28,18 +27,6 @@ export default function Home() {
   const [miniAppUsage, setMiniAppUsage] = useState<Array<{ date: string; count: number }> | null>(null);
   const [clientTypeData, setClientTypeData] = useState<PieDatum[] | undefined>(undefined);
   const [platformTypeData, setPlatformTypeData] = useState<PieDatum[] | undefined>(undefined);
-  const [isSDKLoaded, setIsSDKLoaded] = useState(false);
-  useEffect(() => {
-    const load = async () => {
-      await sdk.context;
-      sdk.actions.ready();
-    };
-    if (sdk && !isSDKLoaded) {
-      setIsSDKLoaded(true);
-      load();
-    }
-  }, [isSDKLoaded]);
-
   // Auto transition after 3 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -130,6 +117,7 @@ export default function Home() {
         setResult("error");
 
     } catch (error) {
+        console.error('Search error:', error);
         setResult("error");
     } finally {
       setIsLoading(false);
@@ -250,6 +238,7 @@ export default function Home() {
         setUserData([]);
       }
     } catch (userError) {
+        console.error('User data error:', userError);
         setUserData([]);
     }
   };
