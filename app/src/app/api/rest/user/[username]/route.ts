@@ -79,7 +79,6 @@ export async function GET(
       }
     } catch (neynarError) {
       // Continue to fallback search if Neynar fails
-      console.error('Neynar API error:', neynarError);
     }
 
     // Step 2: If we got FID from Neynar, use our REST endpoint to get user data from our DB
@@ -123,7 +122,6 @@ export async function GET(
               }
             } catch (topAppsError) {
               // Continue without top apps data
-              console.error('Top apps error:', topAppsError);
             }
 
             return NextResponse.json({
@@ -164,7 +162,6 @@ export async function GET(
         }
       } catch (dbError) {
         // Continue to fallback if DB query fails
-        console.error('DB error:', dbError);
       }
     }
 

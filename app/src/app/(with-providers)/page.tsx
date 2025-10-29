@@ -117,7 +117,6 @@ export default function Home() {
         setResult("error");
 
     } catch (error) {
-        console.error('Search error:', error);
         setResult("error");
     } finally {
       setIsLoading(false);
@@ -238,7 +237,6 @@ export default function Home() {
         setUserData([]);
       }
     } catch (userError) {
-        console.error('User data error:', userError);
         setUserData([]);
     }
   };

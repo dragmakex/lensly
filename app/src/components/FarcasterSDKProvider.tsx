@@ -9,8 +9,8 @@ export default function FarcasterSDKProvider() {
       try {
         await sdk.context;
         sdk.actions.ready();
-      } catch (error) {
-        console.error("Failed to initialize Farcaster SDK:", error);
+      } catch {
+        // Silent error handling for production
       }
     };
 

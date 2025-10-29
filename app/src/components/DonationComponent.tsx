@@ -57,8 +57,8 @@ export default function DonationComponent({ className = "", topUsers }: Donation
       if (chainId && chainId !== base.id) {
         try {
           await switchChainAsync({ chainId: base.id });
-        } catch (error) {
-          console.error("Failed to switch to Base:", error);
+        } catch {
+          // Silent error handling for production
         }
       }
     };
@@ -101,7 +101,6 @@ export default function DonationComponent({ className = "", topUsers }: Donation
         setError(data.message || "User not found");
       }
     } catch (err) {
-      console.error(err);
       setRecipientAddress("");
       setError("Failed to fetch user address. Please try again.");
     } finally {
@@ -167,8 +166,8 @@ export default function DonationComponent({ className = "", topUsers }: Donation
         value: BigInt(0),
       });
 
-    } catch (err) {
-      console.error(err);
+    } catch {
+      // Silent error handling for production
     }
   };
 
