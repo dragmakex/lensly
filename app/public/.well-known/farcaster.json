@@ -7,9 +7,9 @@
     "frame": {
     "name": "LENSLY",
     "version": "1",
-    "iconUrl": "https://lensly.seraphim.zone/logo.svg",
+    "iconUrl": "https://lensly.seraphim.zone/logo.png",
     "homeUrl": "https://lensly.seraphim.zone",
-    "splashImageUrl": "https://lensly.seraphim.zone/logo.svg",
+    "splashImageUrl": "https://lensly.seraphim.zone/logo.png",
     "splashBackgroundColor": "#000000",
     "webhookUrl": "https://lensly.seraphim.zone/api/webhook"
   }
