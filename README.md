@@ -1,4 +1,4 @@
-# Lensly
+# Lensly 
 
 **Lensly is the Analytics Hub for Farcaster Applications.** It captures application context, builds comprehensive user profiles, and ships real-time insights about the entire Mini App ecosystem.
 
