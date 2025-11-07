@@ -1,3 +1,2 @@
-export { Analytics as default } from './Analytics';
-export { AnalyticsProvider } from './provider';
-export type { AnalyticsProps, AnalyticsProviderProps } from './types';
+export { LenslyAnalytics } from './LenslyAnalytics';
+export type { LenslyAnalyticsProps } from './types';
