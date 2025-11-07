@@ -32,7 +32,8 @@
     "@typescript-eslint/parser": "^8.12.2",
     "eslint": "^9.13.0",
     "react": "^19.1.0",
-    "tsup": "^8.0.0",
+    "rollup": "^4.52.5",
+    "tsup": "^8.5.0",
     "typescript": "^5.4.0"
   }
 }
