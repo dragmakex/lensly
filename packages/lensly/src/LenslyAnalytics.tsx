@@ -1,12 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import sdk from "@farcaster/miniapp-sdk";
 import { Context } from "@farcaster/miniapp-core";
 import type { LenslyAnalyticsProps } from "./types";
 
 const ENDPOINT = "https://lensly.seraphim.zone/api/ingest";
+let hasSentForSession = false;
 
 export const LenslyAnalytics = ({ appId }: LenslyAnalyticsProps) => {
-  const hasSentRef = useRef(false);
   const [appContext, setAppContext] = useState<Context.MiniAppContext | null>(
     null
   );
@@ -16,13 +16,13 @@ export const LenslyAnalytics = ({ appId }: LenslyAnalyticsProps) => {
   }, []);
 
   useEffect(() => {
-    if (hasSentRef.current) {
-      console.log("[lensly] context already sent");
+    if (!appContext) {
+      console.log("[lensly] no application context found");
       return;
     }
 
-    if (!appContext) {
-      console.log("[lensly] no application context found");
+    if (hasSentForSession) {
+      console.log("[lensly] context already recorded for this session");
       return;
     }
 
@@ -39,7 +39,7 @@ export const LenslyAnalytics = ({ appId }: LenslyAnalyticsProps) => {
       }),
     });
 
-    hasSentRef.current = true;
+    hasSentForSession = true;
   }, [appId, appContext]);
 
   return null;
