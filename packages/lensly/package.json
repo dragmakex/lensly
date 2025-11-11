@@ -1,12 +1,13 @@
 {
-  "name": "@sen-com/lensly",
-  "version": "0.2.6",
+  "name": "@g2f/lensly",
+  "version": "0.2.7",
   "description": "Farcaster Mini App Analytics SDK",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
   },
   "files": [
     "dist"
