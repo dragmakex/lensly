@@ -1,6 +1,6 @@
 "use client";
 
-import { LenslyAnalytics } from "@sen-com/lensly";
+import { LenslyAnalytics } from "@g2f/lensly";
 import type { ReactNode } from "react";
 import { WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
